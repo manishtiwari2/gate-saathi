@@ -1,0 +1,249 @@
+// GATE Saathi data model. SQLite by default; Postgres-compatible.
+// Swap provider + DATABASE_URL to move to Postgres (no schema changes needed
+// beyond the provider line).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---- Auth / users ----
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  displayName    String
+  username       String?  @unique
+  avatarUrl      String?
+  dailyGoalMin   Int      @default(120)
+  timezone       String   @default("UTC")
+  role           String   @default("student")
+  plan           String   @default("free") // free | premium
+  createdAt      DateTime @default(now())
+
+  accounts       Account[]
+  sessions       Session[]
+  studySessions  StudySession[]
+  roomsOwned     Room[]         @relation("RoomOwner")
+  memberships    RoomMember[]
+  messages       RoomMessage[]
+  files          UserFile[]
+  attempts       QuestionAttempt[]
+}
+
+// NextAuth adapter tables
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---- PYQ bank ----
+
+model Branch {
+  code          String    @id // cs, ec, ...
+  name          String
+  displayName   String
+  icon          String    @default("")
+  questionCount Int       @default(0)
+  yearMin       Int?
+  yearMax       Int?
+  subjects      Subject[]
+  questions     Question[]
+}
+
+model Subject {
+  id           String   @id @default(cuid())
+  branchCode   String
+  name         String
+  displayName  String
+  displayOrder Int      @default(0)
+  branch       Branch   @relation(fields: [branchCode], references: [code])
+  topics       Topic[]
+  questions    Question[]
+
+  @@unique([branchCode, name])
+}
+
+model Topic {
+  id        String   @id @default(cuid())
+  subjectId String
+  name      String
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  questions Question[]
+
+  @@unique([subjectId, name])
+}
+
+model Question {
+  id              String   @id @default(cuid())
+  sourceId        String?  @unique // original questionId, e.g. gate-cs-2024-5
+  branchCode      String
+  subjectId       String?
+  topicId         String?
+  subjectName     String
+  topicName       String?
+  year            Int?
+  session         String?
+  questionNumber  String?
+  questionType    String   @default("MCQ") // MCQ | MSQ | NAT
+  marks           Int      @default(1)
+  negativeMarks   Float    @default(0)
+  difficulty      String   @default("medium")
+  questionText    String
+  questionHtml    String?
+  options         String   @default("[]") // JSON array
+  correctAnswer   String?  // seeded from collect-answers, may be null
+  answerVerified  Boolean  @default(false)
+
+  branch    Branch   @relation(fields: [branchCode], references: [code])
+  subject   Subject? @relation(fields: [subjectId], references: [id])
+  topic     Topic?   @relation(fields: [topicId], references: [id])
+  attempts  QuestionAttempt[]
+}
+
+model QuestionAttempt {
+  id             String   @id @default(cuid())
+  userId         String
+  questionId     String
+  selectedAnswer String
+  isCorrect      Boolean
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question       Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+// ---- Mock papers ----
+
+model Paper {
+  id          String @id // CS-M1
+  branchCode  String
+  title       String
+  description String?
+  totalQuestions Int  @default(0)
+  totalMarks     Int  @default(0)
+  meta        String @default("{}") // JSON: difficulty split + subject breakdown
+}
+
+// ---- Cutoffs ----
+
+model Cutoff {
+  id              String @id @default(cuid())
+  year            Int
+  branchCode      String
+  branchName      String
+  generalCutoff   Float?
+  obcCutoff       Float?
+  scCutoff        Float?
+  stCutoff        Float?
+  totalApplicants Int?
+
+  @@unique([year, branchCode])
+}
+
+// ---- Study / rooms ----
+
+model StudySession {
+  id            String   @id @default(cuid())
+  userId        String
+  roomId        String?
+  subject       String?
+  seconds       Int      @default(0)
+  startedAt     DateTime @default(now())
+  endedAt       DateTime?
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Room {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  roomKey     String       @unique
+  ownerId     String
+  isPrivate   Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  owner       User         @relation("RoomOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members     RoomMember[]
+  messages    RoomMessage[]
+  files       RoomFile[]
+}
+
+model RoomMember {
+  id       String   @id @default(cuid())
+  roomId   String
+  userId   String
+  role     String   @default("member") // owner | member
+  joinedAt DateTime @default(now())
+  presence String   @default("active") // active | break | away
+  room     Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId])
+}
+
+model RoomMessage {
+  id        String   @id @default(cuid())
+  roomId    String
+  userId    String
+  body      String
+  createdAt DateTime @default(now())
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RoomFile {
+  id        String   @id @default(cuid())
+  roomId    String
+  fileId    String
+  sharedAt  DateTime @default(now())
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  file      UserFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+}
+
+model UserFile {
+  id               String     @id @default(cuid())
+  userId           String
+  name             String
+  originalFilename String
+  mimeType         String
+  fileSize         Int        @default(0)
+  storagePath      String
+  visibility       String     @default("private") // private | published
+  accessTier       String     @default("free")
+  branch           String?
+  createdAt        DateTime   @default(now())
+  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roomFiles        RoomFile[]
+}

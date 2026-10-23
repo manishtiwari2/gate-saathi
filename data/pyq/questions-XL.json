@@ -1,0 +1,300 @@
+[
+ {
+  "id": "bb3dd432-527a-47c7-ac04-a90606c5d055",
+  "questionId": "GATE-XL-2024-S1-Q010",
+  "questionNumber": "10",
+  "subjectName": "General Aptitude",
+  "topicName": "Verbal",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Choose synonym of 'abundant':",
+  "questionHtml": null,
+  "options": [
+   {
+    "text": "Scarce",
+    "label": "A"
+   },
+   {
+    "text": "Plentiful",
+    "label": "B"
+   },
+   {
+    "text": "Minimal",
+    "label": "C"
+   },
+   {
+    "text": "Rare",
+    "label": "D"
+   }
+  ],
+  "answerVerified": false,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "8196fe6c-bb95-44a4-a1e5-085f24e6fda0",
+  "questionId": "GATE-XL-2024-S1-Q004",
+  "questionNumber": "4",
+  "subjectName": "Zoology",
+  "topicName": "Animal Physiology",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Heart of mammal is:",
+  "questionHtml": null,
+  "options": [
+   {
+    "text": "2-chambered",
+    "label": "A"
+   },
+   {
+    "text": "3-chambered",
+    "label": "B"
+   },
+   {
+    "text": "4-chambered",
+    "label": "C"
+   },
+   {
+    "text": "5-chambered",
+    "label": "D"
+   }
+  ],
+  "answerVerified": false,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "2beccc62-df15-4433-b5b6-adb0159ecbe8",
+  "questionId": "GATE-XL-2024-S1-Q009",
+  "questionNumber": "9",
+  "subjectName": "Evolution",
+  "topicName": "Darwinism",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Natural selection proposed by:",
+  "questionHtml": null,
+  "options": [
+   {
+    "text": "Lamarck",
+    "label": "A"
+   },
+   {
+    "text": "Darwin",
+    "label": "B"
+   },
+   {
+    "text": "Mendel",
+    "label": "C"
+   },
+   {
+    "text": "Wallace",
+    "label": "D"
+   }
+  ],
+  "answerVerified": false,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "6161fe63-2a33-4451-ba85-ffa0b959fbed",
+  "questionId": "GATE-XL-2024-S1-Q008",
+  "questionNumber": "8",
+  "subjectName": "Ecology",
+  "topicName": "Food Chain",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Trophic level of producers:",
+  "questionHtml": null,
+  "options": [
+   {
+    "text": "1st",
+    "label": "A"
+   },
+   {
+    "text": "2nd",
+    "label": "B"
+   },
+   {
+    "text": "3rd",
+    "label": "C"
+   },
+   {
+    "text": "4th",
+    "label": "D"
+   }
+  ],
+  "answerVerified": false,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "66584d1e-a191-4a43-975a-a37092976b7b",
+  "questionId": "gate-xl-2024-2",
+  "questionNumber": "2",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Enzyme specificity is:",
+  "questionHtml": null,
+  "options": [
+   "High",
+   "Low",
+   "Zero",
+   "Variable"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "76f9ef35-add4-483a-9b3b-31f496b22bc2",
+  "questionId": "gate-xl-2024-4",
+  "questionNumber": "4",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Heart of mammal is:",
+  "questionHtml": null,
+  "options": [
+   "2-chambered",
+   "3-chambered",
+   "4-chambered",
+   "5-chambered"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "38cf3779-c1dc-4134-ab0a-a0026144284a",
+  "questionId": "gate-xl-2024-6",
+  "questionNumber": "6",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "DNA replication is:",
+  "questionHtml": null,
+  "options": [
+   "Conservative",
+   "Semi-conservative",
+   "Dispersive",
+   "Random"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "ed3aa6b8-2391-406d-a5d2-d2877be701df",
+  "questionId": "gate-xl-2024-8",
+  "questionNumber": "8",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Trophic level of producers:",
+  "questionHtml": null,
+  "options": [
+   "1st",
+   "2nd",
+   "3rd",
+   "4th"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "c3924675-ec50-49cc-9553-8f917d5c7b91",
+  "questionId": "gate-xl-2024-10",
+  "questionNumber": "10",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Choose synonym of 'abundant':",
+  "questionHtml": null,
+  "options": [
+   "Scarce",
+   "Plentiful",
+   "Minimal",
+   "Rare"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "6e345b82-ef08-43a9-93a4-05a63107639a",
+  "questionId": "gate-xl-2024-1",
+  "questionNumber": "1",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Mean of normal distribution is:",
+  "questionHtml": null,
+  "options": [
+   "Median",
+   "Mode",
+   "Both",
+   "None"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ }
+]

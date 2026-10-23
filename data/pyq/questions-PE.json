@@ -1,0 +1,288 @@
+[
+ {
+  "id": "031f1da2-a522-4857-81ee-c72a1ba90711",
+  "questionId": "GATE-PE-2024-S1-Q005",
+  "questionNumber": "5",
+  "subjectName": "Production Engineering",
+  "topicName": "Artificial Lift",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "ESP stands for:",
+  "questionHtml": null,
+  "options": [
+   {
+    "text": "Electric Submersible Pump",
+    "label": "A"
+   },
+   {
+    "text": "Electronic Surface Pump",
+    "label": "B"
+   },
+   {
+    "text": "Electrostatic Pump",
+    "label": "C"
+   },
+   {
+    "text": "None",
+    "label": "D"
+   }
+  ],
+  "answerVerified": false,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "9ce68f10-2d75-4cc3-9dab-aceacd5fa157",
+  "questionId": "GATE-PE-2024-S1-Q003",
+  "questionNumber": "3",
+  "subjectName": "Drilling Engineering",
+  "topicName": "Bits",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Roller cone bit has:",
+  "questionHtml": null,
+  "options": [
+   {
+    "text": "1 cone",
+    "label": "A"
+   },
+   {
+    "text": "2",
+    "label": "B"
+   },
+   {
+    "text": "3",
+    "label": "C"
+   },
+   {
+    "text": "4",
+    "label": "D"
+   }
+  ],
+  "answerVerified": false,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "33fa5ee0-a494-45ea-8aed-b79cd95aefe0",
+  "questionId": "GATE-PE-2024-S1-Q001",
+  "questionNumber": "1",
+  "subjectName": "Engineering Mathematics",
+  "topicName": "Differential Equations",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "First order ODE dy/dx = y solution:",
+  "questionHtml": null,
+  "options": [
+   {
+    "text": "Ce^x",
+    "label": "A"
+   },
+   {
+    "text": "Ce^-x",
+    "label": "B"
+   },
+   {
+    "text": "x^2",
+    "label": "C"
+   },
+   {
+    "text": "ln(x)",
+    "label": "D"
+   }
+  ],
+  "answerVerified": false,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "d8c94d00-9da2-404e-a2b5-1a0fa8035226",
+  "questionId": "gate-pe-2024-2",
+  "questionNumber": "2",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Source rock rich in:",
+  "questionHtml": null,
+  "options": [
+   "Carbonate",
+   "Organic matter",
+   "Sand",
+   "Shale"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "d2ccdacf-8fed-41c4-8681-21aafdd762cb",
+  "questionId": "gate-pe-2024-4",
+  "questionNumber": "4",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Darcy's law: q = ?",
+  "questionHtml": null,
+  "options": [
+   "kA\u0394P/\u03bcL",
+   "\u03bcLA/k",
+   "kL/\u03bcA",
+   "\u03bc/KA"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "b63b2c97-057c-4c01-8d38-94aa0c2fb7e7",
+  "questionId": "gate-pe-2024-6",
+  "questionNumber": "6",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Gamma ray log measures:",
+  "questionHtml": null,
+  "options": [
+   "Porosity",
+   "Saturation",
+   "Shale",
+   "Permeability"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "8a257f2f-3742-44c5-831e-f49f7efe106d",
+  "questionId": "gate-pe-2024-8",
+  "questionNumber": "8",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Pressure transient analysis uses:",
+  "questionHtml": null,
+  "options": [
+   "Horner plot",
+   "Material balance",
+   "MBAL",
+   "PVT"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "1cd0615a-0a0e-479e-88a1-f73a3e5749da",
+  "questionId": "gate-pe-2024-10",
+  "questionNumber": "10",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "15% of 2000:",
+  "questionHtml": null,
+  "options": [
+   "200",
+   "300",
+   "400",
+   "150"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "0a8e9779-10a7-4c51-af4b-c4b5a69f3d1c",
+  "questionId": "gate-pe-2024-1",
+  "questionNumber": "1",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "First order ODE dy/dx = y solution:",
+  "questionHtml": null,
+  "options": [
+   "Ce^x",
+   "Ce^-x",
+   "x^2",
+   "ln(x)"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "43253b60-b855-4ac2-a75d-88c66f4f5688",
+  "questionId": "gate-pe-2024-3",
+  "questionNumber": "3",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Roller cone bit has:",
+  "questionHtml": null,
+  "options": [
+   "1 cone",
+   "2",
+   "3",
+   "4"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ }
+]

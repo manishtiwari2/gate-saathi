@@ -1,0 +1,80 @@
+original_url,resource_type,title,accessibility_status,local_path,verification_status,notes
+/api/pyq/branches,json/api,PYQ branches (20),public-collected,data/pyq/branches.json,verified,"counts, years 2021-2025"
+/api/pyq/branches/CS/subjects,json/api,CS subjects+topics,public-collected,data/pyq/subjects-CS.json,verified,
+/api/pyq/questions?branch=CS,json/api,CS question list,session-collected,data/pyq/questions-CS.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/CS,json/api,CS mock-paper metadata,public-collected,data/papers/papers-CS.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/EC/subjects,json/api,EC subjects+topics,public-collected,data/pyq/subjects-EC.json,verified,
+/api/pyq/questions?branch=EC,json/api,EC question list,session-collected,data/pyq/questions-EC.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/EC,json/api,EC mock-paper metadata,public-collected,data/papers/papers-EC.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/EE/subjects,json/api,EE subjects+topics,public-collected,data/pyq/subjects-EE.json,verified,
+/api/pyq/questions?branch=EE,json/api,EE question list,session-collected,data/pyq/questions-EE.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/EE,json/api,EE mock-paper metadata,public-collected,data/papers/papers-EE.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/ME/subjects,json/api,ME subjects+topics,public-collected,data/pyq/subjects-ME.json,verified,
+/api/pyq/questions?branch=ME,json/api,ME question list,session-collected,data/pyq/questions-ME.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/ME,json/api,ME mock-paper metadata,public-collected,data/papers/papers-ME.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/CE/subjects,json/api,CE subjects+topics,public-collected,data/pyq/subjects-CE.json,verified,
+/api/pyq/questions?branch=CE,json/api,CE question list,session-collected,data/pyq/questions-CE.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/CE,json/api,CE mock-paper metadata,public-collected,data/papers/papers-CE.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/IN/subjects,json/api,IN subjects+topics,public-collected,data/pyq/subjects-IN.json,verified,
+/api/pyq/questions?branch=IN,json/api,IN question list,session-collected,data/pyq/questions-IN.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/IN,json/api,IN mock-paper metadata,public-collected,data/papers/papers-IN.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/PI/subjects,json/api,PI subjects+topics,public-collected,data/pyq/subjects-PI.json,verified,
+/api/pyq/questions?branch=PI,json/api,PI question list,session-collected,data/pyq/questions-PI.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/PI,json/api,PI mock-paper metadata,public-collected,data/papers/papers-PI.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/CH/subjects,json/api,CH subjects+topics,public-collected,data/pyq/subjects-CH.json,verified,
+/api/pyq/questions?branch=CH,json/api,CH question list,session-collected,data/pyq/questions-CH.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/CH,json/api,CH mock-paper metadata,public-collected,data/papers/papers-CH.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/BT/subjects,json/api,BT subjects+topics,public-collected,data/pyq/subjects-BT.json,verified,
+/api/pyq/questions?branch=BT,json/api,BT question list,session-collected,data/pyq/questions-BT.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/BT,json/api,BT mock-paper metadata,public-collected,data/papers/papers-BT.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/MT/subjects,json/api,MT subjects+topics,public-collected,data/pyq/subjects-MT.json,verified,
+/api/pyq/questions?branch=MT,json/api,MT question list,session-collected,data/pyq/questions-MT.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/MT,json/api,MT mock-paper metadata,public-collected,data/papers/papers-MT.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/XE/subjects,json/api,XE subjects+topics,public-collected,data/pyq/subjects-XE.json,verified,
+/api/pyq/questions?branch=XE,json/api,XE question list,session-collected,data/pyq/questions-XE.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/XE,json/api,XE mock-paper metadata,public-collected,data/papers/papers-XE.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/XL/subjects,json/api,XL subjects+topics,public-collected,data/pyq/subjects-XL.json,verified,
+/api/pyq/questions?branch=XL,json/api,XL question list,session-collected,data/pyq/questions-XL.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/XL,json/api,XL mock-paper metadata,public-collected,data/papers/papers-XL.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/TF/subjects,json/api,TF subjects+topics,public-collected,data/pyq/subjects-TF.json,verified,
+/api/pyq/questions?branch=TF,json/api,TF question list,session-collected,data/pyq/questions-TF.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/TF,json/api,TF mock-paper metadata,public-collected,data/papers/papers-TF.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/PE/subjects,json/api,PE subjects+topics,public-collected,data/pyq/subjects-PE.json,verified,
+/api/pyq/questions?branch=PE,json/api,PE question list,session-collected,data/pyq/questions-PE.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/PE,json/api,PE mock-paper metadata,public-collected,data/papers/papers-PE.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/EY/subjects,json/api,EY subjects+topics,public-collected,data/pyq/subjects-EY.json,verified,
+/api/pyq/questions?branch=EY,json/api,EY question list,session-collected,data/pyq/questions-EY.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/EY,json/api,EY mock-paper metadata,public-collected,data/papers/papers-EY.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/MA/subjects,json/api,MA subjects+topics,public-collected,data/pyq/subjects-MA.json,verified,
+/api/pyq/questions?branch=MA,json/api,MA question list,session-collected,data/pyq/questions-MA.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/MA,json/api,MA mock-paper metadata,public-collected,data/papers/papers-MA.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/AR/subjects,json/api,AR subjects+topics,public-collected,data/pyq/subjects-AR.json,verified,
+/api/pyq/questions?branch=AR,json/api,AR question list,session-collected,data/pyq/questions-AR.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/AR,json/api,AR mock-paper metadata,public-collected,data/papers/papers-AR.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/AG/subjects,json/api,AG subjects+topics,public-collected,data/pyq/subjects-AG.json,verified,
+/api/pyq/questions?branch=AG,json/api,AG question list,session-collected,data/pyq/questions-AG.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/AG,json/api,AG mock-paper metadata,public-collected,data/papers/papers-AG.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/GG/subjects,json/api,GG subjects+topics,public-collected,data/pyq/subjects-GG.json,verified,
+/api/pyq/questions?branch=GG,json/api,GG question list,session-collected,data/pyq/questions-GG.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/GG,json/api,GG mock-paper metadata,public-collected,data/papers/papers-GG.json,verified,paper meta only; full content auth-gated
+/api/pyq/branches/PH/subjects,json/api,PH subjects+topics,public-collected,data/pyq/subjects-PH.json,verified,
+/api/pyq/questions?branch=PH,json/api,PH question list,session-collected,data/pyq/questions-PH.json,partial,list endpoint; counts inconsistent upstream
+/api/predicted-papers/PH,json/api,PH mock-paper metadata,public-collected,data/papers/papers-PH.json,verified,paper meta only; full content auth-gated
+"/api/pyq/questions (all, de-duped by subject)",json/api,All PYQ question lists,session-collected,data/pyq/questions-all-session.json,verified,559 unique across 20 branches
+/api/pyq/questions/{id},json/api,Question detail records,session-collected,data/pyq/question-details.json,partial,329 of ~559 (non-UUID ids 404 upstream); no correct answer in payload
+/api/cutoffs,json/api,Cutoffs (120 rows),public-collected,data/misc/cutoffs.json,verified,
+/api/predicted-papers,json/api,Mock-paper branch index,public-collected,data/papers/branches.json,verified,
+/api/content/resources,json/api,Published library resources (9),session-collected,data/misc/resources.json,verified,metadata only; PDFs pending owner-run download
+/api/library/document/4bc2053b-933c-4453-9b71-e4f1d69866c4/pdf,application/pdf,GATE EE - PYQ Analysis.pdf,auth (free),,pending,download via scripts/collect-resources.mjs (owner session)
+/api/library/document/b1ee9c0d-4774-467d-995b-1a03bb6bfa10/pdf,application/pdf,GATE ECE - PYQ Analysis.pdf,auth (free),,pending,download via scripts/collect-resources.mjs (owner session)
+/api/library/document/5d73fcf4-a1ee-44a1-8309-adba835d3740/pdf,application/pdf,GATE DA - PYQ Analysis.pdf,auth (free),,pending,download via scripts/collect-resources.mjs (owner session)
+/api/library/document/4d80939e-60a4-4cd6-a3f0-73d6bd2cf9da/pdf,application/pdf,GATE CSE - PYQ Analysis.pdf,auth (free),,pending,download via scripts/collect-resources.mjs (owner session)
+/api/library/document/21af9643-3c31-4cdc-ac30-4dcaf83d24f3/pdf,application/pdf,GATE CE - PYQ Analysis.pdf,auth (free),,pending,download via scripts/collect-resources.mjs (owner session)
+/api/library/document/b4f95c45-f9f1-4ab9-8342-b45f47ba4ad4/pdf,text/markdown,03-GATE-ME.md,auth (free),,pending,download via scripts/collect-resources.mjs (owner session)
+/api/library/document/ddd0389d-ec5f-4d7f-8336-2586f40cc892/pdf,text/markdown,02-GATE-ECE.md,auth (free),,pending,download via scripts/collect-resources.mjs (owner session)
+/api/library/document/d7b78bf3-a567-43e5-9789-43cb58560a51/pdf,text/markdown,04-GATE-EE.md,auth (free),,pending,download via scripts/collect-resources.mjs (owner session)
+/api/library/document/d12f6e81-f3af-4123-b5ee-95fea2b56ce5/pdf,text/markdown,06-GATE-IN.md,auth (free),,pending,download via scripts/collect-resources.mjs (owner session)
+/privacy,text/content,Privacy Policy,public-collected,docs/audit-raw/privacy.txt,verified,
+/terms,text/content,Terms of Service,public-collected,docs/audit-raw/terms.txt,verified,
+next/font Inter,font,Inter (body/UI),public (Google Fonts/OSS),via next/font,reusable,SIL OFL
+next/font Playfair Display,font,Playfair Display (headings),public (Google Fonts/OSS),via next/font,reusable,SIL OFL

@@ -1,0 +1,288 @@
+[
+ {
+  "id": "b597d0b8-d742-4b71-bcb6-f9754abb73ef",
+  "questionId": "GATE-IN-2024-S1-Q006",
+  "questionNumber": "6",
+  "subjectName": "Digital Electronics",
+  "topicName": "ADC",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "8-bit ADC has resolution:",
+  "questionHtml": null,
+  "options": [
+   {
+    "text": "1/256",
+    "label": "A"
+   },
+   {
+    "text": "1/128",
+    "label": "B"
+   },
+   {
+    "text": "1/512",
+    "label": "C"
+   },
+   {
+    "text": "1/64",
+    "label": "D"
+   }
+  ],
+  "answerVerified": false,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "ef932dc0-7041-411f-8eda-2f58fbbfd49d",
+  "questionId": "GATE-IN-2024-S1-Q003",
+  "questionNumber": "3",
+  "subjectName": "Sensors",
+  "topicName": "Transducers",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "LVDT measures:",
+  "questionHtml": null,
+  "options": [
+   {
+    "text": "Displacement",
+    "label": "A"
+   },
+   {
+    "text": "Velocity",
+    "label": "B"
+   },
+   {
+    "text": "Acceleration",
+    "label": "C"
+   },
+   {
+    "text": "Force",
+    "label": "D"
+   }
+  ],
+  "answerVerified": false,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "ce88673c-4847-4d38-98cf-8c6c6330ec80",
+  "questionId": "GATE-IN-2024-S1-Q002",
+  "questionNumber": "2",
+  "subjectName": "Electrical and Electronics Measurements",
+  "topicName": "Instrumentation",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Moving coil instrument measures:",
+  "questionHtml": null,
+  "options": [
+   {
+    "text": "AC only",
+    "label": "A"
+   },
+   {
+    "text": "DC only",
+    "label": "B"
+   },
+   {
+    "text": "Both",
+    "label": "C"
+   },
+   {
+    "text": "None",
+    "label": "D"
+   }
+  ],
+  "answerVerified": false,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "69937611-23ad-49e7-972f-3b152b1df160",
+  "questionId": "gate-in-2024-1",
+  "questionNumber": "1",
+  "subjectName": "Engineering Mathematics",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Determinant of 2x2 matrix:",
+  "questionHtml": null,
+  "options": [
+   "ad-bc",
+   "ad+bc",
+   "a+d",
+   "ab"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "2c545534-276c-48ea-b4bc-3c7a00ffe5c5",
+  "questionId": "gate-in-2024-2",
+  "questionNumber": "2",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Moving coil instrument measures:",
+  "questionHtml": null,
+  "options": [
+   "AC only",
+   "DC only",
+   "Both",
+   "None"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "8548055c-d3de-4a5f-8a04-4107849f9f54",
+  "questionId": "gate-in-2024-3",
+  "questionNumber": "3",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "LVDT measures:",
+  "questionHtml": null,
+  "options": [
+   "Displacement",
+   "Velocity",
+   "Acceleration",
+   "Force"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "e89b20f5-93d0-4cfb-a7f0-3724f58c537f",
+  "questionId": "gate-in-2024-4",
+  "questionNumber": "4",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "PID controller has:",
+  "questionHtml": null,
+  "options": [
+   "1",
+   "2",
+   "3",
+   "4"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "447dc866-c06e-46ad-84f0-ee3d8e58ca49",
+  "questionId": "gate-in-2024-5",
+  "questionNumber": "5",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Instrumentation amp has:",
+  "questionHtml": null,
+  "options": [
+   "1 op-amp",
+   "2",
+   "3",
+   "4"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "a8ba1f57-74be-471f-8300-de3e832e2032",
+  "questionId": "gate-in-2024-6",
+  "questionNumber": "6",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "8-bit ADC has resolution:",
+  "questionHtml": null,
+  "options": [
+   "1/256",
+   "1/128",
+   "1/512",
+   "1/64"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "de971c62-7b68-4d90-ba4f-7dee2cedb379",
+  "questionId": "gate-in-2024-8",
+  "questionNumber": "8",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "FM uses:",
+  "questionHtml": null,
+  "options": [
+   "Amplitude",
+   "Frequency",
+   "Phase",
+   "None"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ }
+]

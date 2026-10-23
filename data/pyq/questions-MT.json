@@ -1,0 +1,312 @@
+[
+ {
+  "id": "c1160183-52f2-4e5e-b014-a7e65fdb2113",
+  "questionId": "GATE-MT-2024-S1-Q010",
+  "questionNumber": "10",
+  "subjectName": "General Aptitude",
+  "topicName": "Quantitative",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "10% of 500:",
+  "questionHtml": null,
+  "options": [
+   {
+    "text": "5",
+    "label": "A"
+   },
+   {
+    "text": "50",
+    "label": "B"
+   },
+   {
+    "text": "500",
+    "label": "C"
+   },
+   {
+    "text": "0.5",
+    "label": "D"
+   }
+  ],
+  "answerVerified": false,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "0ed9e747-7a42-4ad3-8243-ebfb51897f95",
+  "questionId": "GATE-MT-2024-S1-Q009",
+  "questionNumber": "9",
+  "subjectName": "Non-Ferrous Metals",
+  "topicName": "Aluminum",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Duralumin is Al +:",
+  "questionHtml": null,
+  "options": [
+   {
+    "text": "Cu",
+    "label": "A"
+   },
+   {
+    "text": "Mg",
+    "label": "B"
+   },
+   {
+    "text": "Si",
+    "label": "C"
+   },
+   {
+    "text": "Mn",
+    "label": "D"
+   }
+  ],
+  "answerVerified": false,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "5d8fcd0b-53dd-4bbe-9f36-836c1b3088bf",
+  "questionId": "GATE-MT-2024-S1-Q007",
+  "questionNumber": "7",
+  "subjectName": "Corrosion",
+  "topicName": "Electrochemical",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Cathodic reaction in rusting:",
+  "questionHtml": null,
+  "options": [
+   {
+    "text": "Fe -> Fe2+ + 2e-",
+    "label": "A"
+   },
+   {
+    "text": "O2 + 2H2O + 4e- -> 4OH-",
+    "label": "B"
+   },
+   {
+    "text": "Both",
+    "label": "C"
+   },
+   {
+    "text": "None",
+    "label": "D"
+   }
+  ],
+  "answerVerified": false,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "a5cff161-d3a5-4f1c-9093-e988cdc72cd1",
+  "questionId": "GATE-MT-2024-S1-Q006",
+  "questionNumber": "6",
+  "subjectName": "Heat Treatment",
+  "topicName": "Steel",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Martensite is formed by:",
+  "questionHtml": null,
+  "options": [
+   {
+    "text": "Slow cooling",
+    "label": "A"
+   },
+   {
+    "text": "Quenching",
+    "label": "B"
+   },
+   {
+    "text": "Annealing",
+    "label": "C"
+   },
+   {
+    "text": "Normalizing",
+    "label": "D"
+   }
+  ],
+  "answerVerified": false,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "c9e2a23d-e7fa-4628-a37b-31c7b6149071",
+  "questionId": "GATE-MT-2024-S1-Q003",
+  "questionNumber": "3",
+  "subjectName": "Extractive Metallurgy",
+  "topicName": "Iron Making",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Reducing agent in blast furnace:",
+  "questionHtml": null,
+  "options": [
+   {
+    "text": "Coke",
+    "label": "A"
+   },
+   {
+    "text": "Limestone",
+    "label": "B"
+   },
+   {
+    "text": "Hot air",
+    "label": "C"
+   },
+   {
+    "text": "Slag",
+    "label": "D"
+   }
+  ],
+  "answerVerified": false,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "0c70bf07-abf4-4a24-9e44-b29ce0410619",
+  "questionId": "gate-mt-2024-2",
+  "questionNumber": "2",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "BCC coordination number:",
+  "questionHtml": null,
+  "options": [
+   "4",
+   "6",
+   "8",
+   "12"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "ca65da8c-cd25-4819-a431-58345e8bccde",
+  "questionId": "gate-mt-2024-4",
+  "questionNumber": "4",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Edge dislocation moves by:",
+  "questionHtml": null,
+  "options": [
+   "Climb",
+   "Glide",
+   "Cross slip",
+   "None"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "f08c1947-6329-4aac-9d5f-645103b8500a",
+  "questionId": "gate-mt-2024-6",
+  "questionNumber": "6",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Martensite is formed by:",
+  "questionHtml": null,
+  "options": [
+   "Slow cooling",
+   "Quenching",
+   "Annealing",
+   "Normalizing"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "ef23768f-353c-4b2a-b42f-45ced82b0f07",
+  "questionId": "gate-mt-2024-1",
+  "questionNumber": "1",
+  "subjectName": "Engineering Mathematics",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Rank of 3x3 zero matrix:",
+  "questionHtml": null,
+  "options": [
+   "0",
+   "1",
+   "2",
+   "3"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ },
+ {
+  "id": "f9859104-fcca-47a5-b4aa-d6d09999c157",
+  "questionId": "gate-mt-2024-3",
+  "questionNumber": "3",
+  "subjectName": "General Aptitude",
+  "topicName": "General",
+  "questionType": "MCQ",
+  "marks": 1,
+  "difficulty": "medium",
+  "year": 2024,
+  "session": "1",
+  "questionText": "Reducing agent in blast furnace:",
+  "questionHtml": null,
+  "options": [
+   "Coke",
+   "Limestone",
+   "Hot air",
+   "Slag"
+  ],
+  "answerVerified": true,
+  "sourceType": "official_pyq",
+  "sourceRef": null,
+  "reviewStatus": "unreviewed",
+  "answerVersion": 1
+ }
+]
