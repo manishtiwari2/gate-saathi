@@ -11,6 +11,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const file = await db.userFile.findUnique({ where: { id } });
   if (!file || file.visibility !== "published") return fail(404, "NOT_FOUND", "File not found");
 
+  // Premium-tier content requires a premium entitlement.
+  if (file.accessTier === "premium" && !user.isPremium) {
+    return fail(403, "FORBIDDEN", "This is Premium content");
+  }
+
   let bytes: Buffer;
   try {
     bytes = await readFile(file.storagePath);

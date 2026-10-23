@@ -29,9 +29,19 @@ npm run db:seed                 # seed branches, PYQs, papers, cutoffs from data
 npm run dev                     # http://localhost:3000
 ```
 
-The app runs without any external keys: dev login is enabled, and the AI doubt engine returns a
-deterministic mock when `ANTHROPIC_API_KEY` is absent. Add Google OAuth and an Anthropic key in
-`.env.local` to enable real sign-in and live AI answers.
+The app runs without any external keys: dev login is enabled, and the AI doubt engine shows a
+"coming soon" state when `ANTHROPIC_API_KEY` is absent (it never fabricates an answer). Add Google
+OAuth and an Anthropic key in `.env.local` to enable real sign-in and live AI answers.
+
+### Using Postgres / Supabase (production)
+
+SQLite is the local default. To use Postgres (e.g. Supabase, matching the original's backend):
+
+1. In `prisma/schema.prisma`, set `datasource db { provider = "postgresql" }`.
+2. Set `DATABASE_URL` to your Postgres connection string (Supabase gives you one).
+3. `npx prisma migrate deploy` (or `migrate dev` locally), then `npm run db:seed`.
+
+No application code changes are needed — all data access goes through Prisma.
 
 ## Scripts
 
