@@ -178,24 +178,49 @@ async function main() {
   console.log(`  papers: ${paperCount}`);
 
   // ---- cutoffs ----
-  const cutoffs = readJson<{ cutoffs: Array<{ year: number; branchCode: string; branchName: string; generalCutoff?: number; obCutoff?: number; scCutoff?: number; stCutoff?: number; totalApplications?: number }> }>(
+  const cutoffs = readJson<{ cutoffs: Array<{ year: number; branchCode: string; branchName: string; generalCutoff?: number; obCutoff?: number; scCutoff?: number; stCutoff?: number; totalApplicants?: number; totalQualified?: number; qualifyingRate?: number; maxMarks?: number }> }>(
     join(DATA, "misc", "cutoffs.json"),
   ).cutoffs;
+  // The feed has multiple rows per branch/year (one per category), each
+  // carrying different non-null fields. Merge them into one record.
+  type CutoffAcc = {
+    year: number;
+    branchCode: string;
+    branchName: string;
+    generalCutoff: number | null;
+    obcCutoff: number | null;
+    scCutoff: number | null;
+    stCutoff: number | null;
+    totalApplicants: number | null;
+    totalQualified: number | null;
+    qualifyingRate: number | null;
+    maxMarks: number | null;
+  };
+  const merged = new Map<string, CutoffAcc>();
+  const pick = <T>(a: T | null | undefined, b: T | null | undefined): T | null => (a ?? b ?? null);
   for (const c of cutoffs) {
-    await db.cutoff.create({
-      data: {
-        year: c.year,
-        branchCode: c.branchCode.toLowerCase(),
-        branchName: c.branchName,
-        generalCutoff: c.generalCutoff ?? null,
-        obcCutoff: c.obCutoff ?? null,
-        scCutoff: c.scCutoff ?? null,
-        stCutoff: c.stCutoff ?? null,
-        totalApplicants: c.totalApplications ?? null,
-      },
+    const code = c.branchCode.toLowerCase();
+    const key = `${c.year}::${code}`;
+    const prev = merged.get(key);
+    merged.set(key, {
+      year: c.year,
+      branchCode: code,
+      branchName: c.branchName,
+      generalCutoff: pick(prev?.generalCutoff, c.generalCutoff),
+      obcCutoff: pick(prev?.obcCutoff, c.obCutoff),
+      scCutoff: pick(prev?.scCutoff, c.scCutoff),
+      stCutoff: pick(prev?.stCutoff, c.stCutoff),
+      totalApplicants: pick(prev?.totalApplicants, c.totalApplicants),
+      totalQualified: pick(prev?.totalQualified, c.totalQualified),
+      qualifyingRate: pick(prev?.qualifyingRate, c.qualifyingRate),
+      maxMarks: pick(prev?.maxMarks, c.maxMarks),
     });
   }
-  console.log(`  cutoffs: ${cutoffs.length}`);
+  for (const c of merged.values()) {
+    await db.cutoff.create({ data: c });
+  }
+  const seenCutoff = merged;
+  console.log(`  cutoffs: ${seenCutoff.size}`);
 
   console.log("Seed complete.");
 }
