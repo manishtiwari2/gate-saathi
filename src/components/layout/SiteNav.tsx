@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import { ThemeToggle } from "./ThemeToggle";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,8 @@ const NAV_LINKS = [
 export function SiteNav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const { data: session, status } = useSession();
+  const user = session?.user;
 
   return (
     <nav className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--background)]/90 backdrop-blur">
@@ -47,12 +50,27 @@ export function SiteNav() {
           <Link href="/daily" className="text-sm text-[var(--muted)] hover:text-[var(--foreground)]">
             Daily PYQ
           </Link>
-          <Link
-            href="/login"
-            className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
-          >
-            Sign In
-          </Link>
+          {status !== "loading" &&
+            (user ? (
+              <>
+                <Link href="/profile" className="text-sm text-[var(--foreground)] hover:text-[var(--accent)]">
+                  {user.name ?? "Profile"}
+                </Link>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="text-sm text-[var(--muted)] hover:text-[var(--foreground)]"
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
+              >
+                Sign In
+              </Link>
+            ))}
           <ThemeToggle />
         </div>
 
