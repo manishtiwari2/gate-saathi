@@ -169,6 +169,9 @@ model Cutoff {
   scCutoff        Float?
   stCutoff        Float?
   totalApplicants Int?
+  totalQualified  Int?
+  qualifyingRate  Float?
+  maxMarks        Int?
 
   @@unique([year, branchCode])
 }
