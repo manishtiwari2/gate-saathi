@@ -10,9 +10,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   const file = await db.userFile.findUnique({ where: { id } });
   if (!file) return fail(404, "NOT_FOUND", "File not found");
-  if (file.userId !== user.id && file.visibility !== "published") {
-    return fail(403, "FORBIDDEN", "Not your file");
-  }
+  // Owner-only here. Published library content is served (with its tier check)
+  // through /api/library/document/[id].
+  if (file.userId !== user.id) return fail(403, "FORBIDDEN", "Not your file");
 
   try {
     const bytes = await readFile(file.storagePath);

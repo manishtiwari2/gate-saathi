@@ -36,7 +36,10 @@ export default async function LibraryContentPage() {
                   <Card className="h-full transition-colors hover:border-[var(--accent)]">
                     <div className="flex items-start justify-between gap-3">
                       <h2 className="font-medium">{file.name}</h2>
-                      {file.branch && <Badge tone="accent">{file.branch.toUpperCase()}</Badge>}
+                      <div className="flex shrink-0 gap-1">
+                        {file.accessTier === "premium" && <Badge>🔒 Premium</Badge>}
+                        {file.branch && <Badge tone="accent">{file.branch.toUpperCase()}</Badge>}
+                      </div>
                     </div>
                     <p className="mt-2 text-sm text-[var(--muted)]">
                       {Math.max(1, Math.round(file.fileSize / 1024))} KB

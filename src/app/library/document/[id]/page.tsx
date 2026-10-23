@@ -13,9 +13,30 @@ export default async function LibraryDocumentPage({
 }) {
   const { id } = await params;
 
-  return withUser(async () => {
+  return withUser(async (user) => {
     const file = await db.userFile.findUnique({ where: { id } });
     if (!file || file.visibility !== "published") notFound();
+
+    // Premium content needs a premium entitlement — show an upsell instead of
+    // the viewer (the API enforces this too).
+    if (file.accessTier === "premium" && !user.isPremium) {
+      return (
+        <div className="mx-auto max-w-md px-4 py-24">
+          <div className="rounded-[var(--radius-card)] border border-[var(--border)] p-6 text-center">
+            <p className="text-4xl" aria-hidden>
+              🔒
+            </p>
+            <h1 className="mt-3 font-display text-2xl">Premium material</h1>
+            <p className="mt-2 text-sm text-[var(--muted)]">
+              This study material is available to Premium members.
+            </p>
+            <Link href="/library/content" className="mt-6 inline-flex text-sm text-[var(--accent)] hover:underline">
+              ← Back to Library Content
+            </Link>
+          </div>
+        </div>
+      );
+    }
 
     const src = `/api/library/document/${id}`;
 
