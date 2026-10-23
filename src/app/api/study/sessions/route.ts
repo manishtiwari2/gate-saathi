@@ -2,6 +2,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { ok, fail } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
+import { getMembership } from "@/lib/rooms";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -41,6 +42,12 @@ export async function POST(req: Request) {
   }
   const parsed = schema.safeParse(raw);
   if (!parsed.success) return fail(400, "BAD_REQUEST", "seconds is required");
+
+  // If a room is attributed, the user must actually be a member of it.
+  if (parsed.data.roomId) {
+    const m = await getMembership(parsed.data.roomId, user.id);
+    if (!m) return fail(403, "FORBIDDEN", "Not a member of this room");
+  }
 
   const now = new Date();
   const session = await db.studySession.create({
