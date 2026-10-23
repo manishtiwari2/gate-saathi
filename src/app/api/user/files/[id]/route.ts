@@ -16,10 +16,25 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   try {
     const bytes = await readFile(file.storagePath);
+    // Never render arbitrary user content inline on the app origin. Only a
+    // small allowlist may be shown inline; everything else downloads.
+    const SAFE_INLINE = new Set([
+      "application/pdf",
+      "image/png",
+      "image/jpeg",
+      "image/gif",
+      "image/webp",
+      "text/plain",
+    ]);
+    const inline = SAFE_INLINE.has(file.mimeType);
+    const type = inline ? file.mimeType : "application/octet-stream";
+    const disp = inline ? "inline" : "attachment";
     return new Response(new Uint8Array(bytes), {
       headers: {
-        "content-type": file.mimeType,
-        "content-disposition": `inline; filename="${file.originalFilename}"`,
+        "content-type": type,
+        "content-disposition": `${disp}; filename*=UTF-8''${encodeURIComponent(file.originalFilename)}`,
+        "x-content-type-options": "nosniff",
+        "content-security-policy": "sandbox; default-src 'none'",
       },
     });
   } catch {
