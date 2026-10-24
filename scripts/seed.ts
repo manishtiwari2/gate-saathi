@@ -222,6 +222,50 @@ async function main() {
   const seenCutoff = merged;
   console.log(`  cutoffs: ${seenCutoff.size}`);
 
+  // ---- published library resources (from the owner-run collector) ----
+  const manifestPath = join(DATA, "misc", "library-manifest.json");
+  if (existsSync(manifestPath)) {
+    const manifest = readJson<{ resources: Array<{ id: string; name: string; mime?: string; size?: number; branch?: string; access_tier?: string; status: string }> }>(manifestPath);
+    const okFiles = manifest.resources.filter((r) => r.status === "ok");
+
+    // Owner for published library files (a system account).
+    const libraryUser = await db.user.upsert({
+      where: { email: "library@gate-saathi.local" },
+      update: {},
+      create: { email: "library@gate-saathi.local", displayName: "GATE Saathi Library", username: "library" },
+    });
+
+    // Normalize a few branch codes from the source to ours.
+    const branchMap: Record<string, string> = { cse: "cs", ece: "ec" };
+    const libDir = join(process.cwd(), "storage", "library");
+
+    await db.userFile.deleteMany({ where: { userId: libraryUser.id } });
+    let added = 0;
+    for (const r of okFiles) {
+      const safeName = r.name.replace(/[^\w.\-() ]+/g, "_").replace(/ /g, "-");
+      const storagePath = join(libDir, safeName);
+      if (!existsSync(storagePath)) continue; // only seed files actually present on disk
+      await db.userFile.create({
+        data: {
+          id: r.id,
+          userId: libraryUser.id,
+          name: r.name,
+          originalFilename: r.name,
+          mimeType: r.mime ?? "application/pdf",
+          fileSize: r.size ?? 0,
+          storagePath,
+          visibility: "published",
+          accessTier: r.access_tier ?? "free",
+          branch: r.branch ? branchMap[r.branch] ?? r.branch : null,
+        },
+      });
+      added++;
+    }
+    console.log(`  library resources: ${added} published`);
+  } else {
+    console.log("  library resources: none (run scripts/collect-resources.console.js)");
+  }
+
   console.log("Seed complete.");
 }
 

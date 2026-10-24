@@ -1,0 +1,74 @@
+{
+  "generatedAt": "2026-10-24T00:25:03.943Z",
+  "resources": [
+    {
+      "id": "4bc2053b-933c-4453-9b71-e4f1d69866c4",
+      "name": "GATE EE - PYQ Analysis.pdf",
+      "mime": "application/pdf",
+      "size": 64756,
+      "branch": "ee",
+      "access_tier": "free",
+      "status": "ok"
+    },
+    {
+      "id": "b1ee9c0d-4774-467d-995b-1a03bb6bfa10",
+      "name": "GATE ECE - PYQ Analysis.pdf",
+      "mime": "application/pdf",
+      "size": 123024,
+      "branch": "ece",
+      "access_tier": "free",
+      "status": "ok"
+    },
+    {
+      "id": "5d73fcf4-a1ee-44a1-8309-adba835d3740",
+      "name": "GATE DA - PYQ Analysis.pdf",
+      "mime": "application/pdf",
+      "size": 80252,
+      "branch": "da",
+      "access_tier": "free",
+      "status": "ok"
+    },
+    {
+      "id": "4d80939e-60a4-4cd6-a3f0-73d6bd2cf9da",
+      "name": "GATE CSE - PYQ Analysis.pdf",
+      "mime": "application/pdf",
+      "size": 105531,
+      "branch": "cse",
+      "access_tier": "free",
+      "status": "ok"
+    },
+    {
+      "id": "21af9643-3c31-4cdc-ac30-4dcaf83d24f3",
+      "name": "GATE CE - PYQ Analysis.pdf",
+      "mime": "application/pdf",
+      "size": 101469,
+      "branch": "ce",
+      "access_tier": "free",
+      "status": "ok"
+    },
+    {
+      "id": "b4f95c45-f9f1-4ab9-8342-b45f47ba4ad4",
+      "name": "03-GATE-ME.md",
+      "status": "error",
+      "error": "TypeError: Failed to fetch"
+    },
+    {
+      "id": "ddd0389d-ec5f-4d7f-8336-2586f40cc892",
+      "name": "02-GATE-ECE.md",
+      "status": "error",
+      "error": "TypeError: Failed to fetch"
+    },
+    {
+      "id": "d7b78bf3-a567-43e5-9789-43cb58560a51",
+      "name": "04-GATE-EE.md",
+      "status": "error",
+      "error": "TypeError: Failed to fetch"
+    },
+    {
+      "id": "d12f6e81-f3af-4123-b5ee-95fea2b56ce5",
+      "name": "06-GATE-IN.md",
+      "status": "error",
+      "error": "TypeError: Failed to fetch"
+    }
+  ]
+}

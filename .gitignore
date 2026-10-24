@@ -31,9 +31,12 @@ yarn-error.log*
 *.db
 *.db-journal
 
-# local file storage (uploaded + collected binaries)
+# local file storage (user uploads stay local)
 /storage/*
 !/storage/.gitkeep
+# but DO commit the collected, authorized published library resources
+!/storage/library/
+/storage/user/
 
 # testing
 /coverage
