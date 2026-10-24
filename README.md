@@ -7,7 +7,6 @@
 A full-stack study platform with shared focus rooms, a virtual library, a real
 question bank, trend-based mock papers, an AI doubt engine, and a rank predictor.
 
-An authorized, full-stack reconstruction of [padhaishuru.com](https://www.padhaishuru.com), rebuilt from a public audit and real collected data.
 
 ![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
