@@ -20,6 +20,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx prisma generate
+      # Create the schema and seed data so build-time prerendering of
+      # database-backed pages (e.g. /cutoffs) has tables to query.
+      - run: npx prisma migrate deploy
+      - run: npm run db:seed
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
