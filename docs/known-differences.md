@@ -18,8 +18,8 @@ Written for: the project owner. Itemizes where GATE Saathi intentionally or unav
 
 ## Data gaps (collected by the owner, never fabricated)
 
-- **Answer keys**: the reference API never exposes correct answers; grading is server-side only. Until `scripts/collect-answers.console.js` is run, questions are flagged "answer key not yet verified" and grading reports that honestly instead of guessing.
-- **Library PDFs**: the 9 published library resources are downloaded by `scripts/collect-resources.console.js`. Until then, `/library/content` shows an empty state and document views are unavailable — nothing is faked.
+- **Answer keys**: the reference API never exposes correct answers; grading is server-side only. **The reference's grading endpoint (`POST /api/pyq/attempts`) is currently returning HTTP 500 ("Failed to update attempt")**, so the owner-run `collect-answers.console.js` cannot derive keys until the upstream endpoint recovers (it worked during the initial audit). Until then, questions are flagged "answer key not yet verified" and grading reports that honestly instead of guessing. Re-run the collector when the upstream endpoint is healthy.
+- **Library PDFs**: downloaded by `scripts/collect-resources.console.js`. 5 of the 9 published resources (the PDF analyses for EE/ECE/DA/CSE/CE) collected and seeded; the other 4 were Markdown notes whose upstream `/pdf` route failed and are omitted. `/library/content` shows the 5 real PDFs.
 - **Full mock-paper question sets**: the reference gated full-paper content behind sign-in and did not expose the per-question sets via a public endpoint, so they were not collected. Paper pages show real metadata (title, totals, difficulty split, subject breakdown) and a sign-in gate for the full paper, matching the reference's own gating.
 - **Premium-only surfaces**: the topic heatmap and unlimited doubts are premium-gated (402 on the reference for a free account). Behavior for a premium account could not be fully observed on the owner's free account; the reconstruction implements a reasonable premium view.
 
