@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   if (!user) return fail(401, "UNAUTHORIZED", "Not signed in");
 
   // Room keys are the only secret for joining; stop key guessing.
-  const limited = rateLimit("room-join", user.id, 10, 10 * 60_000);
+  const limited = await rateLimit("room-join", user.id, 10, 10 * 60_000);
   if (limited) return limited;
 
   let body: unknown;

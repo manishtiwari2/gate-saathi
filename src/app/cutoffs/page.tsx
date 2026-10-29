@@ -3,6 +3,10 @@ import { db } from "@/lib/db";
 import { Kicker } from "@/components/ui";
 import { CutoffTable, type CutoffRow } from "./CutoffTable";
 
+// Built from the database; refresh hourly so new or re-seeded data shows up
+// without a redeploy.
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "GATE Cutoff Marks: Previous Years, All Branches",
   description: "Historical GATE qualifying cutoff marks by year, branch and category.",

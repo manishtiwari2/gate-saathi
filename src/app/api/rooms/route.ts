@@ -37,7 +37,7 @@ export async function POST(req: Request) {
   const user = await getCurrentUser();
   if (!user) return fail(401, "UNAUTHORIZED", "Not signed in");
 
-  const limited = rateLimit("room-create", user.id, 10, 60 * 60_000);
+  const limited = await rateLimit("room-create", user.id, 10, 60 * 60_000);
   if (limited) return limited;
 
   let body: unknown;

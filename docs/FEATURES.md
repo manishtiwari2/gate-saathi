@@ -27,7 +27,7 @@ For the behavior contract see [SPEC.md](SPEC.md); for divergences from the refer
 | Cutoffs | ✅ | 120 real cutoff rows |
 | Study rooms (create/join by key) | ✅ | membership authorization-checked |
 | Room focus timer | ✅ | |
-| Room chat | ✅ | HTTP polling (~2.5s) |
+| Room chat | ✅ | HTTP polling (~4s) |
 | Room presence | ✅ | in-process memory |
 | Room shared files | ✅ API / 🚧 UI | `RoomFile` API exists; owner "share from storage" UI pending |
 | Virtual library world | ✅ | 2D canvas, WASD, zones, presence (approx. art) |

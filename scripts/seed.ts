@@ -21,7 +21,9 @@ for (const f of [".env", ".env.local"]) {
   }
 }
 
-const db = new PrismaClient();
+// Seed over the direct (unpooled) connection when one is configured: the seed
+// runs one long transaction, which a pooler in transaction mode can cut short.
+const db = new PrismaClient(process.env.DIRECT_URL ? { datasourceUrl: process.env.DIRECT_URL } : undefined);
 const DATA = join(process.cwd(), "data");
 
 function readJson<T>(path: string): T {
@@ -250,8 +252,9 @@ async function seed(db: Tx) {
     let added = 0;
     for (const r of okFiles) {
       const safeName = r.name.replace(/[^\w.\-() ]+/g, "_").replace(/ /g, "-");
-      const storagePath = join(libDir, safeName);
-      if (!existsSync(storagePath)) continue; // only seed files actually present on disk
+      // Stored relative to the project root so it resolves wherever the app runs.
+      const storagePath = `storage/library/${safeName}`;
+      if (!existsSync(join(libDir, safeName))) continue; // only seed files actually present on disk
       await db.userFile.create({
         data: {
           id: r.id,

@@ -49,3 +49,7 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# playwright
+/test-results/
+/playwright-report/

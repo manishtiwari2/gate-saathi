@@ -1,9 +1,10 @@
 import { fail } from "@/lib/api";
+import { isKvConfigured, kvPipeline } from "@/lib/kv";
 
 /**
- * Fixed-window rate limiter kept in process memory. Like library presence,
- * this assumes a single long-running Node instance; move it to a shared store
- * (Redis) together with presence before scaling out.
+ * Fixed-window rate limiter. Counters live in Upstash Redis when it is
+ * configured (needed on Vercel, where instances don't share memory) and in
+ * process memory otherwise (local dev, a single long-running server).
  */
 
 type Window = { count: number; resetAt: number };
@@ -36,12 +37,36 @@ export function clientIp(req: Request): string {
   return req.headers.get("x-real-ip") ?? "unknown";
 }
 
+/** Same as `hit`, against the shared store. Two commands per call. */
+async function hitShared(key: string, limit: number, windowMs: number): Promise<boolean> {
+  // SET NX starts a window with its expiry; INCR counts this request in it.
+  const [, count] = await kvPipeline([
+    ["SET", `rl:${key}`, 0, "PX", windowMs, "NX"],
+    ["INCR", `rl:${key}`],
+  ]);
+  return Number(count) <= limit;
+}
+
 /**
- * Apply a named limit. Returns a 429 response when exceeded, otherwise null.
- * `who` is a user id for signed-in routes, or the client IP.
+ * Apply a named limit. Resolves to a 429 response when exceeded, otherwise
+ * null. `who` is a user id for signed-in routes, or the client IP.
  */
-export function rateLimit(name: string, who: string, limit: number, windowMs: number) {
-  if (hit(`${name}:${who}`, limit, windowMs)) return null;
+export async function rateLimit(name: string, who: string, limit: number, windowMs: number) {
+  const key = `${name}:${who}`;
+  let allowed: boolean;
+  if (isKvConfigured()) {
+    try {
+      allowed = await hitShared(key, limit, windowMs);
+    } catch (e) {
+      // If the store is down, fall back to this instance's memory rather than
+      // failing every request.
+      console.error("Rate limit store unavailable", e);
+      allowed = hit(key, limit, windowMs);
+    }
+  } else {
+    allowed = hit(key, limit, windowMs);
+  }
+  if (allowed) return null;
   return fail(429, "RATE_LIMITED", "Too many requests. Please slow down and try again shortly.");
 }
 

@@ -28,7 +28,7 @@ question bank, trend-based mock papers, an AI doubt engine, and a rank predictor
 - [Tech stack](#tech-stack)
 - [Quick start](#quick-start)
 - [Configuration](#configuration)
-- [Using Postgres / Supabase](#using-postgres--supabase)
+- [Database](#database)
 - [Scripts](#scripts)
 - [Testing](#testing)
 - [Project structure](#project-structure)
@@ -49,10 +49,10 @@ engine; a rank predictor; historical cutoffs; and streaks, leaderboards and a
 topic heatmap to keep momentum.
 
 It is a single Next.js 15 application serving both the UI and a typed REST API,
-backed by Prisma. It runs **out of the box with zero external services** —
-SQLite, dev login, and a graceful "coming soon" state for the AI engine — and
-scales up to Postgres/Supabase, Google OAuth and the Anthropic API by setting a
-few environment variables.
+backed by Prisma and Postgres. Locally it needs only Docker for the database:
+dev login and a graceful "coming soon" state for the AI engine mean no external
+accounts. In production it runs free on Vercel + Neon + Upstash, with Google
+OAuth and the Anthropic API switched on by environment variables.
 
 **Built on real data.** Every question, paper, cutoff and resource is collected
 from the authorized reference site. Where data could not be collected, the app
@@ -89,7 +89,7 @@ Full feature-by-feature status and reference parity: [FEATURES.md](docs/FEATURES
 |---|---|
 | Framework | Next.js 15 (App Router), React 19, TypeScript 5.7 |
 | Styling | Tailwind CSS v4, design tokens extracted from the reference |
-| Database | Prisma 6 ORM over SQLite (Postgres/Supabase-compatible) |
+| Database | Prisma 6 ORM over Postgres (Docker locally, Neon in production) |
 | Auth | Auth.js (NextAuth 4) — Google + dev credentials, JWT sessions |
 | AI | Anthropic Messages API (`claude-haiku-5-5`) |
 | Realtime | HTTP polling (matches the reference) |
@@ -99,55 +99,61 @@ Full feature-by-feature status and reference parity: [FEATURES.md](docs/FEATURES
 
 ## Quick start
 
-**Prerequisites:** Node.js 20+ and npm. No external services needed for local dev.
+**Prerequisites:** Node.js 20+, npm, and Docker (for the local Postgres database).
+No external accounts are needed for local development.
 
 ```bash
 # 1. Install dependencies
 npm install
 
-# 2. Create your env file (defaults run as-is)
-cp .env.example .env.local
+# 2. Create your env file (defaults work with the Docker database)
+cp .env.example .env
 
-# 3. Create and seed the database
-npx prisma migrate dev          # creates the local SQLite database
-npm run db:seed                 # seeds branches, PYQs, papers, cutoffs from data/
+# 3. Start Postgres, create the tables and load the data
+docker compose up -d
+npx prisma migrate deploy
+npm run db:seed                 # branches, PYQs, papers, cutoffs from data/
 
 # 4. Start the dev server
 npm run dev                     # http://localhost:3000
 ```
 
-That's it. Sign in with the dev-login option, browse the PYQ library, create a
-study room, and try the predictor — all without any external keys.
+Sign in with the dev-login option, browse the PYQ library, create a study room
+and try the predictor, all without any external keys.
 
-> **Note:** `DATABASE_URL` must also be present in `.env` (not only `.env.local`),
-> because the Prisma CLI reads `.env`. The copied `.env.example` covers this.
+> **Note:** use `.env`, not `.env.local`: the Prisma CLI only reads `.env`.
+> Restart the dev server after any `prisma migrate` or `prisma generate`.
 
 ## Configuration
 
-All configuration is via environment variables. The app runs with none of them
-set; add them to `.env.local` to enable the corresponding feature.
+All configuration is via environment variables in `.env` locally and in the
+Vercel project settings in production.
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `DATABASE_URL` | yes (defaulted) | Prisma connection string. Defaults to local SQLite. |
+| `DATABASE_URL` | yes | Postgres connection string (Neon's pooled URL in production). |
+| `DIRECT_URL` | yes | Unpooled Postgres URL, used by migrations and the seed. Same as `DATABASE_URL` locally. |
 | `NEXTAUTH_SECRET` | prod | Session/JWT signing secret. |
 | `NEXTAUTH_URL` | prod | Canonical app URL. |
-| `ENABLE_DEV_LOGIN` | dev only | Enables the local dev-login fallback. Disable in production. |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | for Google sign-in | Real Google OAuth. |
-| `ANTHROPIC_API_KEY` | for AI doubts | Enables the AI doubt engine; otherwise it shows "coming soon". |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | prod | Google sign-in (the only sign-in in production). |
+| `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | recommended on Vercel | Shared store for rate limits and library presence. Without it they use process memory. |
+| `ANTHROPIC_API_KEY` | optional | Enables the AI doubt engine; otherwise it shows "coming soon". |
+| `ENABLE_UPLOADS` | optional | Force user uploads on/off. Default: on, except on Vercel. |
+| `ENABLE_DEV_LOGIN` | dev only | Local dev login (any email). Always off in production builds. |
 
-See [`.env.example`](.env.example) for the full list and example values.
+See [`.env.example`](.env.example) for example values.
 
-## Using Postgres / Supabase
+## Database
 
-SQLite is the local default. To use Postgres (for example Supabase, matching the
-reference's backend):
+Postgres everywhere: Docker locally (`docker-compose.yml`) and Neon in
+production. Migrations live in `prisma/migrations` (baseline `0_init`).
 
-1. In `prisma/schema.prisma`, set `datasource db { provider = "postgresql" }`.
-2. Set `DATABASE_URL` to your Postgres connection string.
-3. Run `npx prisma migrate deploy` (or `migrate dev` locally), then `npm run db:seed`.
-
-No application code changes are needed — all data access goes through Prisma.
+```bash
+docker compose up -d            # start local Postgres
+npx prisma migrate dev          # create a migration after editing schema.prisma
+npm run db:seed                 # (re)load data/; keeps users' attempt history
+docker compose down             # stop (data persists in a Docker volume)
+```
 
 ## Scripts
 
@@ -160,6 +166,7 @@ No application code changes are needed — all data access goes through Prisma.
 | `npm test` | Unit tests (Vitest) |
 | `npm run test:e2e` | End-to-end tests (Playwright) |
 | `npm run db:migrate` | `prisma migrate dev` |
+| `npm run keys:import` | Import official answer keys from `data/pyq/official-keys/` |
 | `npm run db:seed` | Seed the database from `data/` |
 | `npm run db:reset` | Reset and re-seed the database |
 
@@ -168,13 +175,16 @@ No application code changes are needed — all data access goes through Prisma.
 ```bash
 npm run typecheck     # type safety
 npm run lint          # linting
-npm test              # unit tests (predictor, stats, utils)
+npm test              # unit + route-handler tests (Vitest)
 npm run build         # production build
-npm run test:e2e      # Playwright (specs in progress)
+npm run test:e2e      # end-to-end tests in a real browser (Playwright)
 ```
 
-The predictor and stats logic are unit-tested. Typecheck, lint, unit tests and
-the production build are all green on `main`, and run in CI on every push and PR.
+- **Unit tests:** grading, rank predictor, time-zone-aware stats, rate limiting and URL helpers.
+- **Route-handler tests** (`src/test/routes.test.ts`): owner-only files, the premium gate, grading, the AI daily limit and presence.
+- **End-to-end tests** (`e2e/`): PYQ practice, predictor categories, sign-in → rooms → chat → timer, and mobile sign-out. They need the seeded local database; run `npx playwright install chromium` once first.
+
+CI runs all of it against a Postgres service on every push and pull request.
 
 ## Project structure
 
@@ -222,15 +232,13 @@ questions without a verified key are flagged accordingly.
 
 ## Deployment
 
-- **Host:** prefer a single long-running Node host (VPS, Railway, Fly) because
-  presence is in-process; or externalize presence to a shared store (for example
-  Redis) first — tracked in [docs/next_steps.md](docs/next_steps.md).
-- **Database:** switch Prisma to `postgresql`, set `DATABASE_URL`, run
-  `prisma migrate deploy`, then seed.
-- **Secrets:** set `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, Google OAuth credentials and
-  `ANTHROPIC_API_KEY`; disable `ENABLE_DEV_LOGIN`.
-- **CI/CD:** GitHub Actions run lint/typecheck/test/build (`.github/workflows/ci.yml`)
-  and a build+artifact deploy step (`deploy.yml`).
+Free hosting on **Vercel + Neon + Upstash**, with an optional custom domain.
+Step-by-step instructions are in **[docs/DEPLOY.md](docs/DEPLOY.md)**.
+
+- Vercel deploys automatically from GitHub; `vercel-build` applies migrations first.
+- Rate limits and library presence use Upstash so they work across serverless instances.
+- User uploads are off on Vercel ("coming soon") because there is no persistent disk; the library PDFs ship with the app.
+- Vercel Hobby is non-commercial: move to Pro or another host before charging for Premium.
 
 ## Roadmap & status
 
@@ -241,7 +249,7 @@ Current state is tracked in [STATUS.md](docs/STATUS.md); the actionable backlog 
 - Interactive full mock-paper runner.
 - Mistake / bookmark bank from attempt data.
 - Room file-sharing UI, storage quotas.
-- Playwright e2e specs; move presence to a shared store for horizontal scaling.
+- Object storage for user uploads on serverless hosting (uploads are off on Vercel for now).
 
 ## Documentation
 
@@ -251,6 +259,7 @@ Current state is tracked in [STATUS.md](docs/STATUS.md); the actionable backlog 
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical design, data model, API surface |
 | [FEATURES.md](docs/FEATURES.md) | Feature matrix with status and reference parity |
 | [STATUS.md](docs/STATUS.md) | Current-state snapshot |
+| [DEPLOY.md](docs/DEPLOY.md) | Free deployment on Vercel + Neon + Upstash, custom domain |
 | [CONTRIBUTING.md](docs/CONTRIBUTING.md) | Dev setup, git flow, conventions |
 | [CLAUDE.md](CLAUDE.md) | Conventions and gotchas for AI/code agents |
 | [SECURITY.md](docs/SECURITY.md) | Vulnerability reporting and security invariants |

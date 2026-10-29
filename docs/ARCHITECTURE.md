@@ -4,11 +4,11 @@ Technical design of GATE Saathi. For what the product does see [SPEC.md](SPEC.md
 
 ## Overview
 
-A single Next.js 15 application (App Router) that serves both the UI and the REST API, backed by Prisma over SQLite (Postgres/Supabase-compatible). This mirrors the reference, which is also a single Next.js app. There is no separate backend service.
+A single Next.js 15 application (App Router) that serves both the UI and the REST API, backed by Prisma over Postgres (Docker locally, Neon in production), deployed on Vercel. This mirrors the reference, which is also a single Next.js app. There is no separate backend service.
 
 ```
 Browser ──▶ Next.js (App Router)
-              ├── Server Components ─────▶ Prisma ──▶ SQLite / Postgres
+              ├── Server Components ─────▶ Prisma ──▶ Postgres
               ├── Route handlers (/api) ─▶ Prisma
               │                          └▶ Anthropic Messages API (AI doubts)
               └── Client Components ─────▶ polling the /api routes (chat, presence)
@@ -20,7 +20,7 @@ Browser ──▶ Next.js (App Router)
 |---|---|---|
 | Framework | Next.js 15 (App Router), React 19, TypeScript | matches the reference |
 | Styling | Tailwind CSS v4 (pinned 4.3.3) | tokens in `src/styles/globals.css` |
-| ORM / DB | Prisma 6 over SQLite | swap to Postgres via `DATABASE_URL` + provider |
+| ORM / DB | Prisma 6 over Postgres | Docker locally, Neon in production; `DIRECT_URL` for migrations |
 | Auth | Auth.js (NextAuth 4), Google + dev credentials | JWT sessions, Prisma adapter |
 | AI | Anthropic Messages API (`claude-haiku-5-5`) | coming-soon when key absent |
 | Realtime | HTTP polling | matches the reference; no websockets |
@@ -77,10 +77,10 @@ ai/doubt  ai/doubt/free
 
 HTTP polling, chosen to match the reference (which polls rather than using websockets):
 
-- Rooms chat polls roughly every 2.5s.
-- Library presence polls roughly every 1.2s.
+- Rooms chat polls roughly every 4s.
+- Library presence polls roughly every 3s (paused while the tab is hidden), stored in Upstash Redis when configured.
 
-Presence is held in **process memory**, so a multiplayer-consistent deployment needs a single long-running Node instance. Moving presence to a shared store (for example Redis) to allow horizontal scaling is tracked in [docs/next_steps.md](next_steps.md).
+Library presence and rate-limit counters live in **Upstash Redis** when it is configured (`src/lib/kv.ts`), so they work across Vercel's serverless instances; locally they fall back to process memory. Room presence uses the `RoomMember.lastSeenAt` column, and the AI daily limit is enforced in the database.
 
 ## Security
 
@@ -99,4 +99,4 @@ The app runs fully without either; see [STATUS.md](STATUS.md) for their current 
 
 ## Deployment notes
 
-Because presence is in-process, prefer a single long-running Node host (VPS, Railway, Fly) over a scale-to-many serverless setup, or externalize presence first. For Postgres/Supabase, set the Prisma `provider` to `postgresql`, set `DATABASE_URL`, run `prisma migrate deploy`, then seed. No application code changes are needed to switch databases.
+Production runs free on Vercel + Neon + Upstash; see [DEPLOY.md](DEPLOY.md). `vercel-build` applies migrations before `next build`. User uploads are off on Vercel (no persistent disk) until object storage is added.
