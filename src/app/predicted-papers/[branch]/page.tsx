@@ -5,6 +5,10 @@ import { db } from "@/lib/db";
 import { getBranch, BRANCH_CODES } from "@/lib/branches";
 import { Kicker, Card, Badge } from "@/components/ui";
 
+// Built from the database; refresh hourly so new or re-seeded data shows up
+// without a redeploy.
+export const revalidate = 3600;
+
 export function generateStaticParams() {
   return BRANCH_CODES.map((branch) => ({ branch }));
 }

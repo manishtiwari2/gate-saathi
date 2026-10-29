@@ -23,22 +23,26 @@ npm run build         # production build (must stay clean)
 npm run lint          # eslint
 npm run typecheck     # tsc --noEmit (must stay clean)
 npm test              # vitest unit tests (must stay green)
-npm run test:e2e      # playwright e2e (specs still to be written)
+npm run test:e2e      # playwright e2e (needs the seeded local DB)
 
+docker compose up -d  # local Postgres (required for dev, tests and e2e)
 npm run db:migrate    # prisma migrate dev
-npm run db:seed       # seed from data/ (tsx scripts/seed.ts)
+npm run db:seed       # seed from data/ (tsx scripts/seed.ts); keeps attempt history
 npm run db:reset      # prisma migrate reset --force, then re-seed
+npm run keys:import   # official answer keys from data/pyq/official-keys/*.csv
 ```
 
 Before claiming a change works, run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build`. Only claim what you actually ran.
 
 ## Gotchas (these have bitten us)
 
-- **Restart the dev server after `prisma generate` or `prisma migrate`.** The running server holds a stale Prisma client / SQLite file handle and the symptom is a confusing API 500 with an empty body. This is the single most common false alarm in this repo.
-- **Prisma CLI reads `.env`, not `.env.local`.** `DATABASE_URL` must be in `.env` for `prisma migrate`/`generate` to work. The app and the seed script read both; `scripts/seed.ts` has its own small dotenv loader at the top.
+- **Restart the dev server after `prisma generate` or `prisma migrate`.** The running server holds a stale Prisma client and the symptom is a confusing API 500 with an empty body. This is the single most common false alarm in this repo.
+- **Prisma CLI reads `.env`, not `.env.local`.** `DATABASE_URL` and `DIRECT_URL` must be in `.env` for `prisma migrate`/`generate` to work. The app and the seed script read both; `scripts/seed.ts` has its own small dotenv loader at the top.
+- **Postgres only.** Local dev uses `docker compose up -d`; production uses Neon (pooled `DATABASE_URL`, direct `DIRECT_URL`). The old SQLite migrations were replaced by the `0_init` baseline.
+- **Deployed on Vercel (serverless).** Don't keep state in module memory and expect other requests to see it. Rate limits and library presence go through `src/lib/kv.ts` (Upstash, with an in-memory fallback locally); the AI daily limit is enforced in the database. Never write to the filesystem at runtime: uploads are off on Vercel (`isUploadsEnabled()` in `src/lib/storage.ts`). See [docs/DEPLOY.md](docs/DEPLOY.md).
 - **Tailwind v4 is pinned** to `tailwindcss@4.3.3` and `@tailwindcss/postcss@4.3.3`. A version skew between the core and the oxide scanner throws `Missing field 'negated' on ScannerOptions.sources`. Keep both pinned to the same version.
 - **Design tokens live in `src/styles/globals.css`** as CSS variables on `:root` with a `.dark` override. Do not hardcode colors in components; use `var(--...)`. Core tokens: `--background #faf8f5`, `--foreground #1a1a1a`, `--accent #a3640b` (WCAG AA with white text), plus `--accent-foreground` for text on an accent fill (dark text in dark mode). Never put `text-white` on `--accent`. Fonts: Inter (body) + Playfair Display (display headings), via `next/font`.
-- **Realtime is HTTP polling, not websockets** — this matches the reference. Rooms chat polls ~2.5s, library presence ~1.2s. Presence is kept in process memory, so production needs a single long-running Node instance (or a shared store; see [docs/next_steps.md](docs/next_steps.md)).
+- **Realtime is HTTP polling, not websockets** — this matches the reference. Room chat polls every 4s, members every 5s (30s heartbeat), library presence every 3s while the tab is visible. These are sized for free Vercel/Upstash quotas; don't tighten them casually.
 - **Answer keys and library PDFs are owner-collected** via browser-console scripts (`scripts/collect-*.console.js`), because they require the owner's own authenticated session on the live site. They are not run automatically. The answer-key collector is currently blocked by an upstream 500 on the reference — see [STATUS.md](docs/STATUS.md).
 
 ## Repository map

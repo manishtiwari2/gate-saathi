@@ -16,11 +16,16 @@ export function StorageClient() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadsEnabled, setUploadsEnabled] = useState(true);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const load = useCallback(async () => {
     const r = await fetch("/api/user/files");
-    if (r.ok) setFiles((await r.json()).files ?? []);
+    if (r.ok) {
+      const d = await r.json();
+      setFiles(d.files ?? []);
+      setUploadsEnabled(d.uploadsEnabled !== false);
+    }
     setLoading(false);
   }, []);
 
@@ -48,7 +53,9 @@ export function StorageClient() {
 
   async function remove(id: string) {
     if (!confirm("Delete this file?")) return;
-    await fetch(`/api/user/files/${id}`, { method: "DELETE" });
+    setError(null);
+    const r = await fetch(`/api/user/files/${id}`, { method: "DELETE" }).catch(() => null);
+    if (!r?.ok) setError("Couldn't delete that file. Please try again.");
     load();
   }
 
@@ -56,7 +63,7 @@ export function StorageClient() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-4xl">My Storage</h1>
           <p className="mt-2 text-sm text-[var(--muted)]">
@@ -65,11 +72,21 @@ export function StorageClient() {
         </div>
         <div>
           <input ref={inputRef} type="file" className="hidden" onChange={upload} id="file-upload" />
-          <Button onClick={() => inputRef.current?.click()} disabled={uploading}>
+          <Button onClick={() => inputRef.current?.click()} disabled={uploading || !uploadsEnabled}>
             {uploading ? "Uploading…" : "Upload file"}
           </Button>
         </div>
       </div>
+
+      {!uploadsEnabled && (
+        <Card className="mt-6">
+          <p className="font-medium">File uploads are coming soon.</p>
+          <p className="mt-1 text-sm text-[var(--muted)]">
+            Uploading needs file storage that this deployment doesn&apos;t have yet. The library&apos;s
+            PDFs are still available on the Library page.
+          </p>
+        </Card>
+      )}
 
       {error && <p className="mt-4 text-sm text-[var(--error)]">{error}</p>}
 
@@ -80,7 +97,7 @@ export function StorageClient() {
           <EmptyState
             icon="📁"
             title="No files yet"
-            description="Upload your notes and PDFs to private storage."
+            description={uploadsEnabled ? "Upload your notes and PDFs to private storage." : "Uploads open soon."}
           />
         ) : (
           <ul className="space-y-2">

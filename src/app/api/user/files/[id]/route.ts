@@ -2,6 +2,7 @@ import { readFile, unlink } from "node:fs/promises";
 import { db } from "@/lib/db";
 import { fail, ok } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
+import { resolveStoragePath } from "@/lib/storage";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -15,7 +16,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   if (file.userId !== user.id) return fail(403, "FORBIDDEN", "Not your file");
 
   try {
-    const bytes = await readFile(file.storagePath);
+    const bytes = await readFile(resolveStoragePath(file.storagePath));
     // Never render arbitrary user content inline on the app origin. Only a
     // small allowlist may be shown inline; everything else downloads.
     const SAFE_INLINE = new Set([
@@ -52,6 +53,6 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   if (file.userId !== user.id) return fail(403, "FORBIDDEN", "Not your file");
 
   await db.userFile.delete({ where: { id } });
-  await unlink(file.storagePath).catch(() => {});
+  await unlink(resolveStoragePath(file.storagePath)).catch(() => {});
   return ok({ deleted: true });
 }

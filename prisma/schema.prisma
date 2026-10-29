@@ -1,14 +1,14 @@
-// GATE Saathi data model. SQLite by default; Postgres-compatible.
-// Swap provider + DATABASE_URL to move to Postgres (no schema changes needed
-// beyond the provider line).
+// GATE Saathi data model. Postgres everywhere: Docker locally
+// (docker-compose.yml), Neon in production (docs/DEPLOY.md).
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") // pooled connection in production (Neon)
+  directUrl = env("DIRECT_URL") // unpooled: used by migrations and the seed
 }
 
 // ---- Auth / users ----

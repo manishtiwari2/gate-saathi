@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { db } from "@/lib/db";
 import { fail } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
+import { resolveStoragePath } from "@/lib/storage";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -18,7 +19,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   let bytes: Buffer;
   try {
-    bytes = await readFile(file.storagePath);
+    bytes = await readFile(resolveStoragePath(file.storagePath));
   } catch {
     return fail(410, "GONE", "File is no longer available");
   }

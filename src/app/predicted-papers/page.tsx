@@ -4,6 +4,10 @@ import { db } from "@/lib/db";
 import { BRANCHES } from "@/lib/branches";
 import { Kicker, Card } from "@/components/ui";
 
+// Built from the database; refresh hourly so new or re-seeded data shows up
+// without a redeploy.
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "GATE 2027 Mock Tests: Free Trend-Based Papers",
   description:

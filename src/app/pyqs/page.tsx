@@ -4,6 +4,10 @@ import { BRANCHES } from "@/lib/branches";
 import { Kicker } from "@/components/ui";
 import { BranchGrid, type BranchWithCount } from "@/components/pyq/BranchGrid";
 
+// Built from the database; refresh hourly so new or re-seeded data shows up
+// without a redeploy.
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "GATE PYQs: Free Previous Year Questions by Branch",
   description:

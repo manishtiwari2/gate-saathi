@@ -34,6 +34,9 @@ const ZONES = [
   { name: "Discussion Room", x: 500, y: 320, w: 420, h: 240, fill: "rgba(138,79,184,0.06)" },
 ];
 
+const SYNC_MS = 3_000;
+const HEARTBEAT_MS = 10_000; // under the server's 15s staleness cutoff
+
 export function WorldCanvas({ selfName }: { selfName: string }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const posRef = useRef({ x: WORLD_W / 2, y: WORLD_H / 2 });
@@ -90,20 +93,29 @@ export function WorldCanvas({ selfName }: { selfName: string }) {
     return () => cancelAnimationFrame(raf);
   }, [selfName]);
 
-  // Presence: push my position and pull others.
+  // Presence. One request per tick: send my position when I've moved (or as
+  // a heartbeat so I don't go stale), otherwise just read the others. The
+  // server never includes me in the list. Paused while the tab is hidden.
+  // These limits keep a free shared-store quota usable.
+  const lastSent = useRef<{ x: number; y: number; at: number } | null>(null);
   const sync = useCallback(async () => {
-    const p = posRef.current;
+    if (document.visibilityState === "hidden") return;
+    const p = { x: Math.round(posRef.current.x), y: Math.round(posRef.current.y) };
+    const prev = lastSent.current;
+    const send = !prev || prev.x !== p.x || prev.y !== p.y || Date.now() - prev.at > HEARTBEAT_MS;
     try {
-      await fetch("/api/library/multiplayer", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ x: Math.round(p.x), y: Math.round(p.y), roomId: "library" }),
-      });
-      const r = await fetch("/api/library/multiplayer?roomId=library");
+      const r = send
+        ? await fetch("/api/library/multiplayer", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ ...p, roomId: "library" }),
+          })
+        : await fetch("/api/library/multiplayer?roomId=library");
       if (r.ok) {
+        if (send) lastSent.current = { ...p, at: Date.now() };
         const d = await r.json();
         remotesRef.current = d.players ?? [];
-        setOnline((d.players ?? []).length || 1);
+        setOnline((d.players ?? []).length + 1);
       }
     } catch {
       /* presence is best-effort */
@@ -112,8 +124,12 @@ export function WorldCanvas({ selfName }: { selfName: string }) {
 
   useEffect(() => {
     sync();
-    const i = setInterval(sync, 1200);
-    return () => clearInterval(i);
+    const i = setInterval(sync, SYNC_MS);
+    document.addEventListener("visibilitychange", sync);
+    return () => {
+      clearInterval(i);
+      document.removeEventListener("visibilitychange", sync);
+    };
   }, [sync]);
 
   return (
@@ -185,7 +201,6 @@ function draw(
 
   // Remote players.
   for (const r of remotes) {
-    if (r.label === selfName) continue;
     drawAvatar(ctx, r.x, r.y, COLORS[r.colorIndex % COLORS.length], r.label);
   }
 

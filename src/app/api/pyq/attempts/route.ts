@@ -12,7 +12,7 @@ const schema = z.object({
 
 export async function POST(req: Request) {
   // Grading reveals correctness, so throttle it to stop answer-key scraping.
-  const limited = rateLimit("pyq-attempt", clientIp(req), 30, 60_000);
+  const limited = await rateLimit("pyq-attempt", clientIp(req), 30, 60_000);
   if (limited) return limited;
 
   let body: unknown;

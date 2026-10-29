@@ -9,10 +9,11 @@ Running backlog for GATE Saathi. Grouped by priority. GitHub issues track the di
 
 ## Deployment / config
 
-- [ ] Provision Postgres (Supabase). Set `datasource provider = "postgresql"` + `DATABASE_URL`, run `npx prisma migrate deploy`, `npm run db:seed`.
+- [x] Postgres everywhere (Docker locally, Neon in production); `0_init` baseline migration.
 - [ ] Add Google OAuth (`GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`) for real sign-in; disable `ENABLE_DEV_LOGIN` in prod.
 - [ ] Add `ANTHROPIC_API_KEY` to enable the AI doubt engine (otherwise coming-soon).
-- [ ] Pick a host. Presence (library world + room chat) uses in-process memory → needs a single long-running Node instance, or move presence to a shared store (Redis) for multi-instance.
+- [x] Pick a host: Vercel + Neon + Upstash (free). Steps in [DEPLOY.md](DEPLOY.md).
+- [ ] Object storage (Vercel Blob or Cloudflare R2) so user uploads can be turned on in production.
 
 ## Features
 
@@ -25,9 +26,9 @@ Running backlog for GATE Saathi. Grouped by priority. GitHub issues track the di
 
 ## Quality / tech debt
 
-- [ ] Playwright e2e suite (config + first flows: auth, quiz grading, room create/chat, predictor). `test:e2e` script exists; no specs yet.
-- [ ] Move library presence off in-process memory to a shared store for horizontal scaling.
-- [ ] Rate-limit public/auth API routes.
+- [x] Playwright e2e suite (PYQ practice, predictor, sign-in → rooms → chat → timer, mobile sign-out), run in CI.
+- [x] Library presence and rate limits use a shared store (Upstash) for serverless.
+- [x] Rate-limit public/auth API routes.
 - [ ] Replace per-item sequential DB writes in `scripts/seed.ts` with batched `createMany` for faster seeding.
 
 ## Reference-parity gaps (documented in docs/known-differences.md)

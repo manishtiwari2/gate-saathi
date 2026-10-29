@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { ok, fail } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 import { rateLimit } from "@/lib/rate-limit";
+import { isUploadsEnabled } from "@/lib/storage";
 
 const MAX_BYTES = 20 * 1024 * 1024; // 20 MB per file
 const STORAGE_DIR = join(process.cwd(), "storage", "user");
@@ -30,6 +31,7 @@ export async function GET() {
       created_at: f.createdAt,
     })),
     usage: { usedBytes: used },
+    uploadsEnabled: isUploadsEnabled(),
   });
 }
 
@@ -37,7 +39,11 @@ export async function POST(req: Request) {
   const user = await getCurrentUser();
   if (!user) return fail(401, "UNAUTHORIZED", "Not signed in");
 
-  const limited = rateLimit("upload", user.id, 20, 60 * 60_000);
+  if (!isUploadsEnabled()) {
+    return fail(503, "COMING_SOON", "File uploads are coming soon.");
+  }
+
+  const limited = await rateLimit("upload", user.id, 20, 60 * 60_000);
   if (limited) return limited;
 
   // Reject oversized bodies before formData() buffers them into memory.

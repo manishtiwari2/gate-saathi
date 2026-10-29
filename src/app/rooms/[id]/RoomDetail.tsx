@@ -231,7 +231,7 @@ function RoomChat({ roomId }: { roomId: string }) {
 
   useEffect(() => {
     poll();
-    const i = setInterval(poll, 2500);
+    const i = setInterval(poll, 4000); // each poll is a server request; keep within free hosting quotas
     return () => clearInterval(i);
   }, [poll]);
 

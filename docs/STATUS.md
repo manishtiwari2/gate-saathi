@@ -30,10 +30,10 @@ The reconstruction is **functionally complete** and runs end to end on real coll
 
 ## Optional before production
 
-- Provision Postgres/Supabase: set Prisma `provider = "postgresql"`, set `DATABASE_URL`, `prisma migrate deploy`, seed.
+- Create the free Neon database and run `prisma migrate deploy` + `npm run db:seed` against it (see DEPLOY.md).
 - Add `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`; disable dev login in production.
 - Add `ANTHROPIC_API_KEY` to turn the AI doubt engine on (coming-soon until then).
-- Choose a single long-running Node host (presence is in-process), or move presence to a shared store first.
+- Deploy on Vercel + Neon + Upstash following [DEPLOY.md](DEPLOY.md) (presence and rate limits already use the shared store).
 
 ## Deferred / gaps (documented)
 
