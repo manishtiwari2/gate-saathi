@@ -13,6 +13,12 @@ export interface BranchStats {
   totalQualified: number;
   generalCutoff: number;
   maxMarks: number;
+  /**
+   * The candidate's own category cutoff (OBC-NCL/EWS or SC/ST/PwD). GATE
+   * ranks are all-India and shared across categories, so this only changes
+   * whether the candidate qualifies. Defaults to the general cutoff.
+   */
+  qualifyingCutoff?: number;
 }
 
 export interface RankEstimate {
@@ -27,7 +33,7 @@ export function estimateRank(marks: number, stats: BranchStats): RankEstimate {
   const { totalApplicants, totalQualified, generalCutoff, maxMarks } = stats;
   const m = Math.max(0, Math.min(marks, maxMarks));
 
-  const qualifies = m >= generalCutoff;
+  const qualifies = m >= (stats.qualifyingCutoff ?? generalCutoff);
 
   // Above the cutoff, model the count of candidates scoring >= m as decaying
   // exponentially from totalQualified (at the cutoff) toward ~1 (at maxMarks).

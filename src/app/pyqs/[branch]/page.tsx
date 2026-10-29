@@ -63,6 +63,7 @@ export default async function BranchPyqPage({
       <header className="mt-4">
         <Kicker>{b.code.toUpperCase()} · Previous-year questions</Kicker>
         <h1 className="mt-2 font-display text-4xl">{b.displayName}</h1>
+        {b.note && <p className="mt-3 max-w-2xl text-sm text-[var(--muted)]">{b.note}</p>}
       </header>
 
       <div className="mt-10">

@@ -37,4 +37,12 @@ describe("estimateRank", () => {
     expect(r.percentile).toBeGreaterThanOrEqual(0);
     expect(r.percentile).toBeLessThanOrEqual(100);
   });
+
+  it("qualifies against the candidate's category cutoff without changing rank", () => {
+    const general = estimateRank(20, cs);
+    const reserved = estimateRank(20, { ...cs, qualifyingCutoff: 18 });
+    expect(general.qualifies).toBe(false);
+    expect(reserved.qualifies).toBe(true);
+    expect(reserved.estimatedRank).toBe(general.estimatedRank);
+  });
 });
