@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isValidTimeZone } from "@/lib/stats";
 import { db } from "@/lib/db";
 import { ok, fail } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
@@ -7,7 +8,7 @@ const schema = z.object({
   displayName: z.string().min(1).max(80).optional(),
   username: z.string().min(2).max(30).regex(/^[a-z0-9_]+$/i).optional(),
   dailyGoalMin: z.number().int().min(5).max(1440).optional(),
-  timezone: z.string().max(64).optional(),
+  timezone: z.string().max(64).refine(isValidTimeZone, "Unknown time zone").optional(),
 });
 
 export async function PATCH(req: Request) {

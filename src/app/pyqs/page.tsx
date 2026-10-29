@@ -39,9 +39,9 @@ export default async function PyqsPage() {
       <section className="mt-16 rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--background-alt)] p-8">
         <h2 className="font-display text-2xl">Practice Every Question, Free</h2>
         <p className="mt-3 max-w-2xl text-[var(--muted)]">
-          Anyone can preview questions. Sign in free to unlock the full question bank, track your
-          attempts and build your mistake bank. Topic-wise filtering, heatmaps and trend analysis
-          are Premium features.
+          Every question is free to browse and practise, no account needed. Sign in to record your
+          graded attempts; Premium adds a topic-by-topic accuracy heatmap. Questions are graded once
+          their official answer key is verified, and each one shows whether it is.
         </p>
       </section>
     </div>

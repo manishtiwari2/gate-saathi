@@ -33,7 +33,14 @@ export function SiteFooter() {
           <div>
             <p className="text-sm font-semibold">Support</p>
             <p className="mt-3 text-sm text-[var(--muted)]">
-              Questions? Feedback? Reach out through our platform.
+              Questions or feedback? Open an issue on{" "}
+              <a
+                href="https://github.com/manishtiwari2/gate-saathi/issues"
+                className="text-[var(--accent)] hover:underline"
+              >
+                GitHub
+              </a>
+              .
             </p>
           </div>
         </div>

@@ -4,7 +4,15 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { Button, Card, Input } from "@/components/ui";
 
-export function LoginForm({ googleEnabled, devEnabled }: { googleEnabled: boolean; devEnabled: boolean }) {
+export function LoginForm({
+  googleEnabled,
+  devEnabled,
+  callbackUrl,
+}: {
+  googleEnabled: boolean;
+  devEnabled: boolean;
+  callbackUrl: string;
+}) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -12,7 +20,7 @@ export function LoginForm({ googleEnabled, devEnabled }: { googleEnabled: boolea
   async function devLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    await signIn("dev", { email, name, callbackUrl: "/dashboard" });
+    await signIn("dev", { email, name, callbackUrl });
   }
 
   return (
@@ -22,7 +30,7 @@ export function LoginForm({ googleEnabled, devEnabled }: { googleEnabled: boolea
 
       {googleEnabled && (
         <button
-          onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+          onClick={() => signIn("google", { callbackUrl })}
           className="mt-6 flex w-full items-center justify-center gap-3 rounded-lg border border-[var(--border)] px-4 py-2.5 text-sm font-medium hover:bg-[var(--background-alt)]"
         >
           <span aria-hidden>🔑</span> Continue with Google

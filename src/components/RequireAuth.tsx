@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCurrentUser, type CurrentUser } from "@/lib/session";
-import { Card, ButtonLink } from "@/components/ui";
+import { Card } from "@/components/ui";
+import { SignInLink } from "@/components/SignInLink";
 
 /**
  * Server-side auth gate for page content. Renders a sign-in prompt instead of
@@ -19,7 +20,7 @@ export async function withUser(
             This page needs an account. It&apos;s free to start.
           </p>
           <div className="mt-6">
-            <ButtonLink href="/login">Sign in</ButtonLink>
+            <SignInLink />
           </div>
           <p className="mt-4 text-xs text-[var(--muted)]">
             Or <Link href="/pyqs" className="text-[var(--accent)] hover:underline">browse free PYQs</Link>.

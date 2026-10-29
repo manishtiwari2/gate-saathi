@@ -166,7 +166,7 @@ export function QuestionBrowser({ branchCode, subjectName }: Props) {
                 onClick={() => setMode(m)}
                 aria-pressed={mode === m}
                 className={`rounded-md px-3 py-1 text-sm capitalize ${
-                  mode === m ? "bg-[var(--accent)] text-[var(--foreground-light)]" : "text-[var(--muted)]"
+                  mode === m ? "bg-[var(--accent)] text-[var(--accent-foreground)]" : "text-[var(--muted)]"
                 }`}
               >
                 {m}

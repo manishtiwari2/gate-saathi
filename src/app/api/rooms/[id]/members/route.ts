@@ -16,7 +16,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     orderBy: { joinedAt: "asc" },
   });
 
-  // Consider a member "online" if they updated presence in the last 60s.
+  // A member is "online" if their open room page sent a heartbeat in the last
+  // 60s (the page sends one every 30s).
   const cutoff = Date.now() - 60_000;
   return ok({
     members: members.map((m) => ({
@@ -25,7 +26,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       role: m.role,
       presence: m.presence,
       isMe: m.userId === user.id,
-      online: m.joinedAt.getTime() > cutoff || m.presence !== "away",
+      online: m.lastSeenAt.getTime() > cutoff,
     })),
   });
 }
@@ -49,7 +50,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
   await db.roomMember.update({
     where: { roomId_userId: { roomId: id, userId: user.id } },
-    data: { presence: parsed.data.presence },
+    data: { presence: parsed.data.presence, lastSeenAt: new Date() },
   });
   return ok({ presence: parsed.data.presence });
 }

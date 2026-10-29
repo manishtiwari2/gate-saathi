@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { ok } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
+import { startOfDay, resolveTimeZone } from "@/lib/stats";
 
 const DAILY_FREE_LIMIT = 5;
 
@@ -12,7 +13,8 @@ export async function GET() {
     return ok({ signedIn: true, isPremium: true, limit: null, remaining: null });
   }
 
-  const startOfToday = new Date(new Date().toISOString().slice(0, 10));
+  // The daily allowance resets at the learner's own midnight.
+  const startOfToday = startOfDay(resolveTimeZone(user.timezone));
   const usedToday = await db.doubtQuery.count({
     where: { userId: user.id, createdAt: { gte: startOfToday } },
   });

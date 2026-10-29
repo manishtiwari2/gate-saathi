@@ -4,7 +4,7 @@ import { RoomsClient } from "./RoomsClient";
 
 export const metadata: Metadata = {
   title: "GATE Study Rooms: Study Online With Friends",
-  description: "Create or join private study rooms with a focus timer, chat and shared files.",
+  description: "Create or join private study rooms with a focus timer, chat and a live member list.",
 };
 
 export default async function RoomsPage() {
