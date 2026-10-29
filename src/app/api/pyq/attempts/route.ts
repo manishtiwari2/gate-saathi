@@ -2,13 +2,18 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { ok, fail } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 const schema = z.object({
   questionId: z.string().min(1),
-  selectedAnswer: z.string().min(1),
+  selectedAnswer: z.string().min(1).max(64),
 });
 
 export async function POST(req: Request) {
+  // Grading reveals correctness, so throttle it to stop answer-key scraping.
+  const limited = rateLimit("pyq-attempt", clientIp(req), 30, 60_000);
+  if (limited) return limited;
+
   let body: unknown;
   try {
     body = await req.json();

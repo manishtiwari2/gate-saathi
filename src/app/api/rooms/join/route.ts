@@ -2,12 +2,17 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { ok, fail } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
+import { rateLimit } from "@/lib/rate-limit";
 
 const schema = z.object({ roomKey: z.string().min(1).max(12) });
 
 export async function POST(req: Request) {
   const user = await getCurrentUser();
   if (!user) return fail(401, "UNAUTHORIZED", "Not signed in");
+
+  // Room keys are the only secret for joining; stop key guessing.
+  const limited = rateLimit("room-join", user.id, 10, 10 * 60_000);
+  if (limited) return limited;
 
   let body: unknown;
   try {

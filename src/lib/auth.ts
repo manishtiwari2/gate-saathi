@@ -1,4 +1,5 @@
 import type { NextAuthOptions } from "next-auth";
+import type { Adapter, AdapterUser } from "next-auth/adapters";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -16,8 +17,12 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   );
 }
 
-// Local dev login (no external service). Disabled unless explicitly enabled.
-if (process.env.ENABLE_DEV_LOGIN === "true") {
+// Local dev login (no external service). It accepts any email with no password,
+// so it is never available in production, whatever ENABLE_DEV_LOGIN says.
+export const isDevLoginEnabled =
+  process.env.ENABLE_DEV_LOGIN === "true" && process.env.NODE_ENV !== "production";
+
+if (isDevLoginEnabled) {
   providers.push(
     CredentialsProvider({
       id: "dev",
@@ -41,27 +46,35 @@ if (process.env.ENABLE_DEV_LOGIN === "true") {
   );
 }
 
+// The stock adapter writes name/image/emailVerified, which our User model does
+// not have. Map OAuth profiles onto displayName/avatarUrl instead, and let the
+// adapter create the user so it can link the Google Account in the same step.
+const baseAdapter = PrismaAdapter(db);
+const adapter: Adapter = {
+  ...baseAdapter,
+  async createUser(data: Omit<AdapterUser, "id">) {
+    const user = await db.user.create({
+      data: {
+        email: data.email,
+        displayName: data.name ?? data.email.split("@")[0],
+        avatarUrl: data.image ?? undefined,
+      },
+    });
+    return { id: user.id, email: user.email, emailVerified: null, name: user.displayName, image: user.avatarUrl };
+  },
+};
+
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(db),
+  adapter,
   providers,
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
   callbacks: {
-    async signIn({ user, profile }) {
-      // Ensure a User row exists / is updated for Google sign-ins.
-      if (user.email) {
-        await db.user.upsert({
-          where: { email: user.email },
-          update: {
-            displayName: user.name ?? profile?.name ?? user.email.split("@")[0],
-            avatarUrl: user.image ?? undefined,
-          },
-          create: {
-            email: user.email,
-            displayName: user.name ?? user.email.split("@")[0],
-            avatarUrl: user.image ?? undefined,
-          },
-        });
+    async signIn({ user, account }) {
+      // Refresh the avatar for returning Google users. Never create the user
+      // here (the adapter does that) and never overwrite a name they edited.
+      if (account?.provider === "google" && user.email && user.image) {
+        await db.user.updateMany({ where: { email: user.email }, data: { avatarUrl: user.image } });
       }
       return true;
     },
@@ -87,4 +100,3 @@ export const authOptions: NextAuthOptions = {
 };
 
 export const isGoogleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
-export const isDevLoginEnabled = process.env.ENABLE_DEV_LOGIN === "true";

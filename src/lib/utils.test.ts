@@ -22,8 +22,8 @@ describe("formatDuration", () => {
 });
 
 describe("generateRoomKey", () => {
-  it("returns 6 unambiguous uppercase chars", () => {
+  it("returns 8 unambiguous uppercase chars", () => {
     const key = generateRoomKey();
-    expect(key).toMatch(/^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}$/);
+    expect(key).toMatch(/^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{8}$/);
   });
 });

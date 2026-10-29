@@ -13,12 +13,15 @@ export function formatDuration(totalSeconds: number): string {
   return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${pad(m)}:${pad(sec)}`;
 }
 
-/** Generate a short, human-friendly room key (6 chars, no ambiguous glyphs). */
+/**
+ * Generate a human-friendly room key (8 chars, no ambiguous glyphs). The key is
+ * the only secret needed to join, so it uses a cryptographic RNG.
+ */
 export function generateRoomKey(): string {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  // 32 symbols divide 256 evenly, so `byte % 32` is unbiased.
+  const bytes = globalThis.crypto.getRandomValues(new Uint8Array(8));
   let out = "";
-  for (let i = 0; i < 6; i++) {
-    out += alphabet[Math.floor(Math.random() * alphabet.length)];
-  }
+  for (const b of bytes) out += alphabet[b % alphabet.length];
   return out;
 }

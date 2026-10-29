@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { ok, fail } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 import { getMembership } from "@/lib/rooms";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -24,8 +25,10 @@ export async function GET() {
   });
 }
 
+const DAY_SECONDS = 86400;
+
 const schema = z.object({
-  seconds: z.number().int().min(1).max(86400),
+  seconds: z.number().int().min(1).max(DAY_SECONDS),
   subject: z.string().max(120).optional(),
   roomId: z.string().optional(),
 });
@@ -33,6 +36,9 @@ const schema = z.object({
 export async function POST(req: Request) {
   const user = await getCurrentUser();
   if (!user) return fail(401, "UNAUTHORIZED", "Not signed in");
+
+  const limited = rateLimit("study-session", user.id, 30, 60 * 60_000);
+  if (limited) return limited;
 
   let raw: unknown;
   try {
@@ -49,7 +55,17 @@ export async function POST(req: Request) {
     if (!m) return fail(403, "FORBIDDEN", "Not a member of this room");
   }
 
+  // Logged time feeds the leaderboard, so a user cannot log more time in any
+  // 24 hours than 24 hours actually contain.
   const now = new Date();
+  const recent = await db.studySession.aggregate({
+    where: { userId: user.id, endedAt: { gt: new Date(now.getTime() - DAY_SECONDS * 1000) } },
+    _sum: { seconds: true },
+  });
+  if ((recent._sum.seconds ?? 0) + parsed.data.seconds > DAY_SECONDS) {
+    return fail(422, "TOO_MUCH_TIME", "That is more study time than the last 24 hours allow.");
+  }
+
   const session = await db.studySession.create({
     data: {
       userId: user.id,
