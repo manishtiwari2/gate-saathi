@@ -4,6 +4,8 @@ Running backlog for GATE Saathi. Grouped by priority. GitHub issues track the di
 
 ## Do now (owner-run, unblocks real data)
 
+- [ ] Add the official answer keys for the 23 "paper only" official papers, newest first (2026 → 2021): download each year's official key from the organising institute and transcribe it to `data/papers/official/keys/<id>.csv` (format in `data/papers/official/README.md`), then `npm run db:seed`.
+
 - [ ] Run `scripts/collect-answers.console.js` in the padhaishuru.com browser console → `data/pyq/answers.json`, then `npm run db:seed`. Gives real MCQ answer keys so grading verifies answers instead of reporting "unverified".
 - [ ] Run `scripts/collect-resources.console.js` → move 9 files to `storage/library/`, manifest to `data/misc/library-manifest.json`. Populates the virtual library resources.
 

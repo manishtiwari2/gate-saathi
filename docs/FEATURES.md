@@ -19,6 +19,7 @@ For the behavior contract see [SPEC.md](SPEC.md); for divergences from the refer
 | PYQ browse (branch → subject → topic) | ✅ | 20 branches, 213 subjects, 559 real questions |
 | PYQ quiz mode + attempts | ✅ | attempts recorded; grading honest |
 | Verified answer keys | ⛔ | blocked by upstream grading 500; see below |
+| Official GATE CS papers (`/papers`) | ✅ | 32 official papers 2007–2026; 9 with official keys: practice checking + timed mock with GATE marking |
 | Mock papers (metadata) | ✅ | 80 papers, real title/totals/difficulty/subject split |
 | Full mock-paper question sets | 🚧 | auth-gated upstream, not collected; paper pages gate on sign-in |
 | AI doubt engine | 🔑 | needs `ANTHROPIC_API_KEY`; coming-soon otherwise |

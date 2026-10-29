@@ -9,6 +9,7 @@ import { cn, loginHref } from "@/lib/utils";
 
 const NAV_LINKS = [
   { href: "/pyqs", label: "PYQs" },
+  { href: "/papers", label: "Past Papers" },
   { href: "/predicted-papers", label: "Mock Papers" },
   { href: "/doubts", label: "AI Tutor" },
   { href: "/predictor", label: "Predictor" },

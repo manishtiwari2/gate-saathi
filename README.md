@@ -71,6 +71,7 @@ says so honestly rather than fabricating a value.
 ## Features
 
 - 📚 **PYQ library** — 20 GATE branches, 213 subjects, 559 real questions; browse and timed quiz modes with recorded attempts and honest grading.
+- 🗂️ **Official GATE CS papers, 2007–2026** — all 32 official papers as published (PDF), 9 with the official answer key: practise with instant checking, or take a timed 3-hour mock with real GATE marking (negative marking, MSQ/NAT, marks-to-all). Papers without a key say so.
 - 📝 **Mock papers** — trend-based predicted papers with real metadata (totals, difficulty split, subject breakdown).
 - 🤖 **AI doubt engine** — ask a doubt, get an answer from the Anthropic API; free-tier daily limit; degrades to "coming soon" when no key is set (never a fake answer).
 - 📈 **Rank predictor** — estimates rank from a GATE score using historical qualifying statistics, transparently labelled an estimate.
@@ -226,6 +227,13 @@ manually (not automatically):
 
 Instructions are in each file's header. The app works fully without them;
 questions without a verified key are flagged accordingly.
+
+**Official GATE papers.** `scripts/official-papers/build.py` (Python + `pypdf`)
+turns a folder of the official CS question-paper PDFs into
+`public/papers/cs/*.pdf` (answer-key pages removed) and extracts the official
+answer keys printed inside them to `data/papers/official/keys/*.csv`, checking
+each one adds up to 65 questions and 100 marks. To add a key for another paper,
+see [data/papers/official/README.md](data/papers/official/README.md).
 
 > **Current note:** the reference's grading endpoint is returning HTTP 500, so
 > answer-key collection is temporarily blocked upstream. See [STATUS.md](docs/STATUS.md).

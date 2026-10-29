@@ -9,6 +9,7 @@ import { PrismaClient } from "@prisma/client";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { BRANCHES } from "../src/lib/branches";
+import { gradeAnswer, PAPER_OPTIONS } from "../src/lib/grading";
 
 // Load env from .env / .env.local for standalone runs (Prisma Client, unlike
 // the CLI, does not read dotenv files on its own).
@@ -231,6 +232,9 @@ async function seed(db: Tx) {
   const seenCutoff = merged;
   console.log(`  cutoffs: ${seenCutoff.size}`);
 
+  // ---- official GATE papers (scripts/official-papers/build.py) ----
+  await seedOfficialPapers(db);
+
   // ---- published library resources (from the owner-run collector) ----
   const manifestPath = join(DATA, "misc", "library-manifest.json");
   if (existsSync(manifestPath)) {
@@ -275,6 +279,69 @@ async function seed(db: Tx) {
   } else {
     console.log("  library resources: none (run scripts/collect-resources.console.js)");
   }
+}
+
+
+/**
+ * Official papers from data/papers/official/<branch>.json. A paper counts as
+ * keyed only if data/papers/official/keys/<id>.csv exists and passes the
+ * checks (65 questions, 100 marks, every key gradeable); so adding a key
+ * later is: drop in the CSV, re-run the seed.
+ */
+async function seedOfficialPapers(db: Tx) {
+  const manifestPath = join(DATA, "papers", "official", "cs.json");
+  if (!existsSync(manifestPath)) {
+    console.log("  official papers: none (run scripts/official-papers/build.py)");
+    return;
+  }
+  type Entry = {
+    id: string; branch: string; year: number; set: string | null; institute: string | null;
+    note: string | null; pdf: string; pages: number; numbering: string; source: string;
+  };
+  const { papers } = readJson<{ papers: Entry[] }>(manifestPath);
+  let keyed = 0;
+  for (const p of papers) {
+    const rows = readKey(join(DATA, "papers", "official", "keys", `${p.id}.csv`));
+    const problem = rows ? checkKey(rows) : "no key file";
+    if (rows && problem) console.warn(`  ! ${p.id}: answer key ignored (${problem})`);
+    const keyStatus = rows && !problem ? "official" : "none";
+    const data = {
+      branchCode: p.branch, year: p.year, setLabel: p.set, institute: p.institute, note: p.note,
+      pdfPath: p.pdf, pages: p.pages, numbering: p.numbering, keyStatus, source: p.source,
+    };
+    await db.officialPaper.upsert({ where: { id: p.id }, update: data, create: { id: p.id, ...data } });
+    await db.officialQuestion.deleteMany({ where: { paperId: p.id } });
+    if (keyStatus === "official") {
+      await db.officialQuestion.createMany({ data: rows!.map((r) => ({ paperId: p.id, ...r })) });
+      keyed++;
+    }
+  }
+  console.log(`  official papers: ${papers.length} (${keyed} with an official answer key)`);
+}
+
+type KeyRow = { section: string; number: number; type: string; key: string; marks: number };
+
+function readKey(path: string): KeyRow[] | null {
+  if (!existsSync(path)) return null;
+  const [header, ...lines] = readFileSync(path, "utf8").split(/\r?\n/).filter((l) => l.trim());
+  if (header.trim() !== "section,number,type,key,marks") return null;
+  return lines.map((l) => {
+    const [section, number, type, key, marks] = l.split(",").map((c) => c.trim());
+    return { section, number: Number(number), type, key, marks: Number(marks) };
+  });
+}
+
+function checkKey(rows: KeyRow[]): string | null {
+  const ga = rows.filter((r) => r.section === "GA").length;
+  const cs = rows.filter((r) => r.section === "CS").length;
+  const marks = rows.reduce((a, r) => a + r.marks, 0);
+  if (ga !== 10 || cs !== 55 || marks !== 100) return `GA=${ga} CS=${cs} marks=${marks}, expected 10/55/100`;
+  if (new Set(rows.map((r) => `${r.section}-${r.number}`)).size !== 65) return "duplicate question numbers";
+  const bad = rows.find(
+    (r) => !["MCQ", "MSQ", "NAT"].includes(r.type) ||
+      gradeAnswer({ questionType: r.type, options: PAPER_OPTIONS, correctAnswer: r.key }, "A") === null,
+  );
+  return bad ? `unreadable key for ${bad.section}-${bad.number}: "${bad.key}"` : null;
 }
 
 main()

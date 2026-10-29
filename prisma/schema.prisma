@@ -33,6 +33,7 @@ model User {
   messages       RoomMessage[]
   files          UserFile[]
   attempts       QuestionAttempt[]
+  paperAttempts  PaperAttempt[]
   doubts         DoubtQuery[]
 }
 
@@ -170,6 +171,60 @@ model Paper {
   totalQuestions Int  @default(0)
   totalMarks     Int  @default(0)
   meta        String @default("{}") // JSON: difficulty split + subject breakdown
+}
+
+// ---- Official GATE papers (owner-supplied PDFs + official answer keys) ----
+
+model OfficialPaper {
+  id         String  @id // cs-2016-1
+  branchCode String
+  year       Int
+  setLabel   String? // "Set 1", "Session 2", "Code A"
+  institute  String? // organising institute, as printed
+  note       String?
+  pdfPath    String // served from /public
+  pages      Int
+  numbering  String  @default("sections") // sections: GA 1-10 + CS 1-55; continuous: CS 1-55 + GA 56-65
+  keyStatus  String  @default("none") // official | none
+  source     String
+  questions  OfficialQuestion[]
+  attempts   PaperAttempt[]
+
+  @@index([branchCode, year])
+}
+
+// One row per question of a paper that has an official key. The key is never
+// sent to the browser before the student answers.
+model OfficialQuestion {
+  id      String        @id @default(cuid())
+  paperId String
+  section String // GA | CS
+  number  Int
+  type    String // MCQ | MSQ | NAT
+  key     String // "B", "A;C", "0.24 to 0.27 OR 0.3 to 0.3", or "MTA" (marks to all)
+  marks   Int
+  paper   OfficialPaper @relation(fields: [paperId], references: [id], onDelete: Cascade)
+
+  @@unique([paperId, section, number])
+}
+
+model PaperAttempt {
+  id          String        @id @default(cuid())
+  userId      String
+  paperId     String
+  mode        String // practice | mock
+  answers     String        @default("{}") // JSON: { "CS-12": "B", ... }
+  score       Float
+  maxScore    Float
+  correct     Int
+  wrong       Int
+  unanswered  Int
+  durationSec Int?
+  createdAt   DateTime      @default(now())
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paper       OfficialPaper @relation(fields: [paperId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }
 
 // ---- Cutoffs ----
