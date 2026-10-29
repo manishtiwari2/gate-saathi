@@ -6,6 +6,19 @@
 export const SYLLABUS_SOURCE_URL = "https://gate2027ib.iitm.ac.in/GATE2027-IB.pdf";
 export const SYLLABUS_VERIFIED_ON = "2026-10-02";
 
+/**
+ * GATE 2027 exam days, from the same brochure (see the "exam-dates" item
+ * below). Kept as data so the countdown and the checklist can't disagree.
+ */
+export const GATE_2027_EXAM_DAYS = [
+  "2027-02-06",
+  "2027-02-07",
+  "2027-02-13",
+  "2027-02-14",
+  "2027-02-20",
+  "2027-02-21",
+] as const;
+
 export interface SyllabusChange {
   id: string;
   tags: string[];

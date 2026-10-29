@@ -60,9 +60,6 @@ export function ExampleRoomCard() {
         </div>
       </div>
 
-      <div className="mt-4 rounded-lg bg-[var(--accent-subtle)] px-3 py-2 text-sm text-[var(--accent)]">
-        Shared file: dbms-normal-forms-notes.pdf
-      </div>
       <figcaption className="mt-3 text-center text-xs text-[var(--muted-light)]">
         Illustration only. Names, messages, and the room key are examples.
       </figcaption>

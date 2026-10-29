@@ -6,7 +6,7 @@ import { formatDuration } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "GATE Study Leaderboard: Compete With Friends",
-  description: "See where you rank by total verified study time.",
+  description: "See where you rank by study time logged with the focus timer.",
 };
 
 export default async function LeaderboardPage() {
@@ -34,7 +34,7 @@ export default async function LeaderboardPage() {
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
       <Kicker>Leaderboard</Kicker>
       <h1 className="mt-3 font-display text-5xl">GATE Study Leaderboard</h1>
-      <p className="mt-4 text-[var(--muted)]">Ranked by total verified study time.</p>
+      <p className="mt-4 text-[var(--muted)]">Ranked by study time logged with the focus timer (at most 24 hours in any day).</p>
 
       <Card className="mt-10 p-0">
         {rows.length === 0 ? (

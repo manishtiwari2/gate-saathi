@@ -10,13 +10,19 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   if (!user) return fail(401, "UNAUTHORIZED", "Not signed in");
   if (!(await getMembership(id, user.id))) return fail(403, "FORBIDDEN", "Not a member");
 
-  const since = new URL(req.url).searchParams.get("since");
-  const messages = await db.roomMessage.findMany({
-    where: { roomId: id, ...(since ? { createdAt: { gt: new Date(since) } } : {}) },
-    orderBy: { createdAt: "asc" },
-    take: 200,
-    include: { user: { select: { id: true, displayName: true } } },
-  });
+  const sinceParam = new URL(req.url).searchParams.get("since");
+  const since = sinceParam ? new Date(sinceParam) : null;
+  if (since && Number.isNaN(since.getTime())) return fail(400, "BAD_REQUEST", "since must be an ISO date");
+
+  // Newest 200 first from the DB, then oldest-to-newest for display.
+  const messages = (
+    await db.roomMessage.findMany({
+      where: { roomId: id, ...(since ? { createdAt: { gt: since } } : {}) },
+      orderBy: { createdAt: "desc" },
+      take: 200,
+      include: { user: { select: { id: true, displayName: true } } },
+    })
+  ).reverse();
 
   return ok({
     messages: messages.map((m) => ({

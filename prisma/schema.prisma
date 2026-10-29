@@ -20,7 +20,7 @@ model User {
   username       String?  @unique
   avatarUrl      String?
   dailyGoalMin   Int      @default(120)
-  timezone       String   @default("UTC")
+  timezone       String   @default("Asia/Kolkata") // IANA zone; "today" and streaks use it
   role           String   @default("student")
   plan           String   @default("free") // free | premium
   createdAt      DateTime @default(now())
@@ -225,6 +225,7 @@ model RoomMember {
   role     String   @default("member") // owner | member
   joinedAt DateTime @default(now())
   presence String   @default("active") // active | break | away
+  lastSeenAt DateTime @default(now()) // heartbeat from an open room page
   room     Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 

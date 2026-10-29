@@ -4,6 +4,7 @@ import { ok, fail } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 import { answerDoubt } from "@/lib/anthropic";
 import { rateLimit } from "@/lib/rate-limit";
+import { startOfDay, resolveTimeZone } from "@/lib/stats";
 
 const DAILY_FREE_LIMIT = 5;
 // Premium is "unlimited" for students, but a hard ceiling keeps spend bounded.
@@ -42,7 +43,8 @@ export async function POST(req: Request) {
   inFlight.add(user.id);
   try {
     // Enforce the daily limit before doing any work.
-    const startOfToday = new Date(new Date().toISOString().slice(0, 10));
+    // The daily allowance resets at the learner's own midnight.
+    const startOfToday = startOfDay(resolveTimeZone(user.timezone));
     const usedToday = await db.doubtQuery.count({
       where: { userId: user.id, createdAt: { gte: startOfToday } },
     });

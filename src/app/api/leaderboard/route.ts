@@ -1,16 +1,17 @@
 import { db } from "@/lib/db";
 import { ok } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
+import { startOfDay, DEFAULT_TIME_ZONE } from "@/lib/stats";
 
 export async function GET(req: Request) {
   const sp = new URL(req.url).searchParams;
-  const period = sp.get("period") ?? "all";
+  const period = ["today", "week", "all"].includes(sp.get("period") ?? "") ? sp.get("period")! : "all";
 
   const since =
     period === "week"
       ? new Date(Date.now() - 7 * 86400_000)
       : period === "today"
-        ? new Date(new Date().toISOString().slice(0, 10))
+        ? startOfDay(DEFAULT_TIME_ZONE) // a shared board needs one "today": India's
         : undefined;
 
   const grouped = await db.studySession.groupBy({

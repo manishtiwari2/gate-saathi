@@ -18,8 +18,9 @@
   --color-foreground-light: #faf8f5;
   --color-muted: #6b6560;
   --color-muted-light: #a89f97;
-  --color-accent: #b8710e;
-  --color-accent-hover: #9a5e0a;
+  --color-accent: #a3640b;
+  --color-accent-hover: #8a5409;
+  --color-accent-foreground: #ffffff;
   --color-accent-subtle: #fdf3e4;
   --color-border: #e8e2da;
   --color-error: #c43e3e;
@@ -34,8 +35,10 @@
   --foreground-light: #faf8f5;
   --muted: #6b6560;
   --muted-light: #a89f97;
-  --accent: #b8710e;
-  --accent-hover: #9a5e0a;
+  /* #a3640b: 4.8:1 with white text and 4.5:1 as text on --background (WCAG AA). */
+  --accent: #a3640b;
+  --accent-hover: #8a5409;
+  --accent-foreground: #ffffff; /* text on an --accent fill */
   --accent-subtle: #fdf3e4;
   --border: #e8e2da;
   --border-light: rgba(250, 248, 245, 0.15);
@@ -52,7 +55,8 @@
   --muted: #a89f97;
   --muted-light: #6b6560;
   --accent: #d4891a;
-  --accent-hover: #b8710e;
+  --accent-hover: #e39a2f;
+  --accent-foreground: #1a1a1a; /* white on #d4891a is only 2.8:1 */
   --accent-subtle: rgba(212, 137, 26, 0.08);
   --border: #333333;
   --border-light: rgba(250, 248, 245, 0.12);

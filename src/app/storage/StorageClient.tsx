@@ -80,7 +80,7 @@ export function StorageClient() {
           <EmptyState
             icon="📁"
             title="No files yet"
-            description="Upload notes and share them with your study rooms."
+            description="Upload your notes and PDFs to private storage."
           />
         ) : (
           <ul className="space-y-2">

@@ -3,33 +3,33 @@ import { Kicker, Card } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "How it works",
-  description: "The learning loop behind GATE Saathi: learn, practice, get feedback, improve.",
+  description: "How GATE Saathi fits into your GATE preparation: practise PYQs, clear doubts, study with friends, track your time.",
 };
 
 const LOOP = [
-  { title: "Learn", body: "Start with a structured lesson that makes the next step clear without overwhelming you." },
-  { title: "Do", body: "Apply what you learned through real practice. Active engagement is where skills develop." },
-  { title: "Get feedback", body: "The AI analyzes your performance, identifies mistakes, and shows exactly what to change." },
-  { title: "Adapt", body: "If you're struggling, you get a simpler explanation, a different example, or targeted practice." },
-  { title: "Repeat", body: "Important topics return through spaced practice instead of being forgotten after one lesson." },
-  { title: "Improve", body: "Track progress over time and gradually take on harder challenges. Growth is visible and measurable." },
+  { title: "Pick a subject", body: "Choose your GATE branch and a subject, and filter previous-year questions by year." },
+  { title: "Practise", body: "Work through questions in browse mode, or one at a time in quiz mode." },
+  { title: "Check your answer", body: "Questions with a verified official answer key are graded instantly. Each question shows whether its key is verified yet." },
+  { title: "Clear the doubt", body: "Stuck? Send the question to the AI tutor for a step-by-step explanation (5 a day free)." },
+  { title: "Study together", body: "Open a study room with friends, run the focus timer side by side, and talk it through in the room chat." },
+  { title: "Track it", body: "Your dashboard shows your streak, daily goal and the last 30 days, counted in your own time zone." },
 ];
 
-const ADAPT = [
-  { title: "You're struggling?", body: "The AI detects where you're stuck and adjusts — slower explanations, different examples, or targeted practice on that specific area." },
-  { title: "Making the same mistake?", body: "The AI notices patterns in your practice and focuses on the weakness that's holding you back." },
-  { title: "Already mastering it?", body: "Move forward instead of repeating what you already know. The AI recognizes your progress and adjusts." },
-  { title: "Losing progress?", body: "Important topics return at the right time. Spaced review ensures what you learn stays with you." },
+const PLAN = [
+  { title: "Know where you stand", body: "The rank predictor estimates your All-India rank from expected marks and checks it against your category's qualifying cutoff." },
+  { title: "Know the bar", body: "Past cutoffs for every branch, by category, so you can set a realistic target." },
+  { title: "Know what changed", body: "A checklist of the GATE 2027 paper and syllabus changes, each traced to the official brochure." },
+  { title: "Know the date", body: "A countdown to the first GATE 2027 exam day on your dashboard." },
 ];
 
 export default function HowItWorksPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
       <Kicker>How it works</Kicker>
-      <h1 className="mt-3 font-display text-5xl">The loop that builds skills.</h1>
+      <h1 className="mt-3 font-display text-5xl">Practise, clear doubts, keep going.</h1>
       <p className="mt-4 max-w-2xl text-lg text-[var(--muted)]">
-        Every learning experience follows the same loop — designed around how people actually learn,
-        practice, and remember.
+        GATE Saathi doesn&apos;t teach the syllabus. It gives you the practice, the doubt-clearing and
+        the study company around it.
       </p>
 
       <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -47,14 +47,12 @@ export default function HowItWorksPage() {
       </ul>
 
       <section className="mt-16">
-        <h2 className="font-display text-3xl">AI that adapts to your practice.</h2>
+        <h2 className="font-display text-3xl">Plan around the real exam.</h2>
         <p className="mt-3 max-w-2xl text-[var(--muted)]">
-          The AI isn&apos;t just a chatbot beside a course. It&apos;s an active part of the learning
-          loop — responding to how you practice, where you struggle, and when you&apos;re ready for
-          more.
+          Tools for deciding what to aim for and how much time you have left.
         </p>
         <ul className="mt-8 grid gap-6 sm:grid-cols-2">
-          {ADAPT.map((a) => (
+          {PLAN.map((a) => (
             <li key={a.title}>
               <Card className="h-full">
                 <h3 className="font-semibold">{a.title}</h3>

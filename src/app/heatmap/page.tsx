@@ -68,8 +68,10 @@ export default async function HeatmapPage() {
                   <span
                     className="rounded px-2 py-0.5 text-xs font-medium"
                     style={{
-                      background: `color-mix(in oklab, var(--success) ${r.accuracy}%, var(--error))`,
-                      color: "#fff",
+                      // A light tint of the red→green scale keeps the theme's
+                      // text color readable in both light and dark mode.
+                      background: `color-mix(in oklab, color-mix(in oklab, var(--success) ${r.accuracy}%, var(--error)) 25%, transparent)`,
+                      color: "var(--foreground)",
                     }}
                   >
                     {r.accuracy}% ({r.correct}/{r.attempted})

@@ -25,3 +25,19 @@ export function generateRoomKey(): string {
   for (const b of bytes) out += alphabet[b % alphabet.length];
   return out;
 }
+
+/** Sign-in URL that brings the user back to `pathname` afterwards. */
+export function loginHref(pathname: string | null): string {
+  return pathname && pathname !== "/" && pathname !== "/login"
+    ? `/login?callbackUrl=${encodeURIComponent(pathname)}`
+    : "/login";
+}
+
+/**
+ * A post-login redirect target, accepted only if it is a same-site path
+ * (blocks open redirects like "//evil.example" or "https://…").
+ */
+export function safeCallbackUrl(value: string | null | undefined, fallback = "/dashboard"): string {
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) return fallback;
+  return value;
+}

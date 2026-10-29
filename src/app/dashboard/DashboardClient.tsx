@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui";
+import { ExamCountdown } from "@/components/ExamCountdown";
 
 interface Stats {
   total: { hours: number; minutes: number };
@@ -37,6 +38,10 @@ export function DashboardClient({ name }: { name: string }) {
   return (
     <div>
       <h1 className="font-display text-4xl">Welcome back, {name.split(" ")[0]}.</h1>
+
+      <div className="mt-6">
+        <ExamCountdown compact />
+      </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Current streak" value={`${stats.streak.current} day${stats.streak.current === 1 ? "" : "s"}`} icon="🔥" />

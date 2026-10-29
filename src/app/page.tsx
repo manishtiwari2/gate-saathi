@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExamCountdown } from "@/components/ExamCountdown";
 import { ButtonLink, Card, Kicker } from "@/components/ui";
 import { ExampleRoomCard } from "@/components/home/ExampleRoomCard";
 import { BRANCHES } from "@/lib/branches";
@@ -10,23 +11,23 @@ const STEPS = [
 ];
 
 const FEATURES = [
-  { href: "/rooms", title: "Private study rooms", body: "Invite-only rooms joined with a room key. Focus, chat, members and files in one place." },
-  { href: "/library", title: "Virtual library", body: "Walk into a shared study world with a reading area, quiet zone and group tables. Try the demo without an account." },
-  { href: "/leaderboard", title: "Leaderboard", body: "See where you and your friends rank by total verified study time." },
+  { href: "/rooms", title: "Private study rooms", body: "Invite-only rooms joined with a room key. A focus timer, chat and member list in one place." },
+  { href: "/library", title: "Virtual library", body: "Walk into a shared study world with a reading area, quiet zone and group tables. Free with an account." },
+  { href: "/leaderboard", title: "Leaderboard", body: "See where you and your friends rank by study time logged with the focus timer." },
   { href: "/dashboard", title: "Streaks and daily goals", body: "Set a daily study goal and keep your streak going. Your dashboard shows the days you showed up." },
   { href: "/rooms", title: "Group chat", body: "Every room has its own chat for quick questions. Premium adds a global study chat with all aspirants." },
-  { href: "/storage", title: "Shared files", body: "Upload notes to your personal storage, then share them with your room as the room owner." },
+  { href: "/storage", title: "Personal storage", body: "Keep your notes and PDFs in private storage, up to 20 MB per file. Sharing files into rooms is coming soon." },
 ];
 
 const TOOLS = [
   { href: "/pyqs", title: "PYQ library", body: "Previous-year questions organized by branch, subject and topic. Practice in browse or quiz mode. Free." },
   { href: "/doubts", title: "AI doubt engine", body: "Step-by-step explanations for GATE doubts. 5 questions a day free, unlimited on Premium." },
-  { href: "/predicted-papers", title: "Trend-based mock papers", body: "4 practice papers per branch, modelled on historical question patterns. Preview free; sign in to practice full papers." },
+  { href: "/predicted-papers", title: "Trend-based mock papers", body: "4 practice papers per branch, modelled on historical question patterns. Preview each paper's structure free; full attempts are coming soon." },
 ];
 
 const FAQS = [
   { q: "Is GATE Saathi free?", a: "Yes. The PYQ library, study rooms, predictor and cutoffs are free to use. Premium adds unlimited AI doubts, the global study chat and the topic heatmap." },
-  { q: "How do study rooms work?", a: "Create a private room and you get a short room key. Share it with friends; they join from the Rooms page. Each room has a focus timer, chat, member list and shared files." },
+  { q: "How do study rooms work?", a: "Create a private room and you get a short room key. Share it with friends; they join from the Rooms page. Each room has a focus timer, chat and a member list showing who's online." },
   { q: "Which GATE branches are covered?", a: "20 GATE branches have PYQs and mock-paper outlines, and Data Science & AI is listed with its questions still to come. Question coverage varies by branch." },
   { q: "Are the mock papers real predictions of the GATE paper?", a: "No. They are practice simulations modelled on historical question patterns, not predictions of the actual paper." },
   { q: "Does it work on Android?", a: "Yes. The site is responsive and works in any modern mobile browser." },
@@ -44,9 +45,9 @@ export default function HomePage() {
               Study for GATE with your friends.
             </h1>
             <p className="mt-5 max-w-lg text-lg text-[var(--muted)]">
-              Open a private study room, share the key, and put in the hours together. Focus timers,
-              room chat and shared notes sit right next to each other, and everything you need for
-              GATE is built in.
+              Open a private study room, share the key, and put in the hours together. Focus timers
+              and room chat sit right next to each other, with PYQs, the rank predictor and cutoffs
+              built in.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <ButtonLink href="/rooms" size="lg">Create a study room</ButtonLink>
@@ -61,6 +62,9 @@ export default function HomePage() {
               <li>✓ Private rooms with a room key</li>
               <li>✓ PYQs across 20 GATE branches, coverage varies</li>
             </ul>
+            <div className="mt-6 max-w-md">
+              <ExamCountdown compact />
+            </div>
           </div>
           <ExampleRoomCard />
         </div>
@@ -166,7 +170,7 @@ export default function HomePage() {
           <div className="mt-8 space-y-3">
             {FAQS.map((f) => (
               <details key={f.q} className="group rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--background)] p-5">
-                <summary className="cursor-pointer list-none text-lg font-semibold">{f.q}</summary>
+                <summary className="cursor-pointer text-lg font-semibold">{f.q}</summary>
                 <p className="mt-3 text-sm text-[var(--muted)]">{f.a}</p>
               </details>
             ))}
