@@ -1,7 +1,9 @@
 /**
  * Seeds the database from collected reference data under data/.
- * Idempotent: clears PYQ/paper/cutoff tables and re-inserts. Does not touch
- * user/room data. Answer keys are applied if data/pyq/answers.json exists.
+ * Idempotent: upserts branches, subjects, topics and questions (questions keep
+ * their collected id, so users' attempts survive a reseed) and replaces papers
+ * and cutoffs. Questions no longer in data/ are removed along with their
+ * attempts. Answer keys are applied if data/pyq/answers.json exists.
  */
 import { PrismaClient } from "@prisma/client";
 import { readFileSync, existsSync } from "node:fs";
@@ -13,7 +15,7 @@ import { BRANCHES } from "../src/lib/branches";
 for (const f of [".env", ".env.local"]) {
   const p = join(process.cwd(), f);
   if (!existsSync(p)) continue;
-  for (const line of readFileSync(p, "utf8").split("\n")) {
+  for (const line of readFileSync(p, "utf8").split(/\r?\n/)) {
     const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
     if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
   }
@@ -26,8 +28,16 @@ function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(path, "utf8")) as T;
 }
 
+type Tx = Omit<PrismaClient, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">;
+
 async function main() {
   console.log("Seeding from data/ …");
+  // One transaction, so a failure part-way leaves the previous data in place.
+  await db.$transaction((tx) => seed(tx), { timeout: 300_000, maxWait: 30_000 });
+  console.log("Seed complete.");
+}
+
+async function seed(db: Tx) {
 
   // ---- answers (optional) ----
   let answers: Record<string, string> = {};
@@ -53,14 +63,14 @@ async function main() {
   const realCounts: Record<string, number> = {};
   for (const [code, qs] of Object.entries(collected.all)) realCounts[code.toLowerCase()] = qs.length;
 
-  // ---- reset PYQ-related tables ----
-  await db.questionAttempt.deleteMany();
-  await db.question.deleteMany();
-  await db.topic.deleteMany();
-  await db.subject.deleteMany();
+  // ---- reset tables that hold no user data ----
   await db.cutoff.deleteMany();
   await db.paper.deleteMany();
-  await db.branch.deleteMany();
+
+  // Drop questions that are no longer in the collected data (this also
+  // removes rows from older seeds that used generated ids).
+  const collectedIds = Object.values(collected.all).flat().map((q) => q.id as string);
+  await db.question.deleteMany({ where: { id: { notIn: collectedIds } } });
 
   // ---- branches ----
   const branchMeta = readJson<{ branches: Array<{ branchCode: string; branchName: string; displayName: string; yearMin: number; yearMax: number }> }>(
@@ -69,17 +79,15 @@ async function main() {
 
   for (const b of BRANCHES) {
     const meta = branchMeta.find((m) => m.branchCode.toLowerCase() === b.code);
-    await db.branch.create({
-      data: {
-        code: b.code,
-        name: b.name,
-        displayName: b.displayName,
-        icon: b.icon,
-        questionCount: realCounts[b.code] ?? 0,
-        yearMin: meta?.yearMin ?? null,
-        yearMax: meta?.yearMax ?? null,
-      },
-    });
+    const data = {
+      name: b.name,
+      displayName: b.displayName,
+      icon: b.icon,
+      questionCount: realCounts[b.code] ?? 0,
+      yearMin: meta?.yearMin ?? null,
+      yearMax: meta?.yearMax ?? null,
+    };
+    await db.branch.upsert({ where: { code: b.code }, update: data, create: { code: b.code, ...data } });
   }
   console.log(`  branches: ${BRANCHES.length}`);
 
@@ -93,21 +101,21 @@ async function main() {
     const subs = readJson<{ subjects: Array<{ subjectName: string; displayName: string; displayOrder: number; topics: Array<{ topicName: string; displayName: string }> }> }>(path).subjects;
     for (const s of subs) {
       if (!s.subjectName) continue;
-      const subject = await db.subject.create({
-        data: {
-          branchCode: b.code,
-          name: s.subjectName,
-          displayName: s.displayName || s.subjectName,
-          displayOrder: s.displayOrder ?? 0,
-        },
+      const subjectData = { displayName: s.displayName || s.subjectName, displayOrder: s.displayOrder ?? 0 };
+      const subject = await db.subject.upsert({
+        where: { branchCode_name: { branchCode: b.code, name: s.subjectName } },
+        update: subjectData,
+        create: { branchCode: b.code, name: s.subjectName, ...subjectData },
       });
       subjectIdByKey.set(`${b.code}::${s.subjectName}`, subject.id);
       for (const t of s.topics ?? []) {
         if (!t.topicName) continue;
         const key = `${subject.id}::${t.topicName}`;
         if (topicIdByKey.has(key)) continue;
-        const topic = await db.topic.create({
-          data: { subjectId: subject.id, name: t.topicName },
+        const topic = await db.topic.upsert({
+          where: { subjectId_name: { subjectId: subject.id, name: t.topicName } },
+          update: {},
+          create: { subjectId: subject.id, name: t.topicName },
         });
         topicIdByKey.set(key, topic.id);
       }
@@ -128,8 +136,7 @@ async function main() {
       const id = q.id as string;
       const correct = answers[id] ?? null;
       if (correct) verified++;
-      await db.question.create({
-        data: {
+      const data = {
           sourceId: (q.questionId as string) ?? null,
           branchCode: code,
           subjectId,
@@ -147,8 +154,8 @@ async function main() {
           options: JSON.stringify(q.options ?? []),
           correctAnswer: correct,
           answerVerified: Boolean(correct),
-        },
-      });
+      };
+      await db.question.upsert({ where: { id }, update: data, create: { id, ...data } });
       qCount++;
     }
   }
@@ -265,8 +272,6 @@ async function main() {
   } else {
     console.log("  library resources: none (run scripts/collect-resources.console.js)");
   }
-
-  console.log("Seed complete.");
 }
 
 main()

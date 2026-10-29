@@ -31,17 +31,18 @@ export async function answerDoubt(input: DoubtInput): Promise<DoubtResult> {
     .filter(Boolean)
     .join(" · ");
 
-  const prompt = [
+  // Tutor instructions live in the system prompt so text in the student's
+  // question cannot easily override them.
+  const system = [
     "You are a GATE exam tutor. Give a clear, step-by-step explanation grounded in the underlying concepts.",
-    context ? `Context: ${context}.` : "",
     "Explain the reasoning so the student learns the method, not just the final answer. Keep it concise and well-structured.",
-    "",
-    `Question: ${input.question}`,
-  ]
-    .filter(Boolean)
-    .join("\n");
+    "Only help with GATE-relevant academic questions; politely decline anything else.",
+  ].join("\n");
+
+  const prompt = [context ? `Context: ${context}.` : "", `Question: ${input.question}`].filter(Boolean).join("\n\n");
 
   const res = await fetch(API_URL, {
+    signal: AbortSignal.timeout(60_000),
     method: "POST",
     headers: {
       "x-api-key": key,
@@ -51,6 +52,7 @@ export async function answerDoubt(input: DoubtInput): Promise<DoubtResult> {
     body: JSON.stringify({
       model,
       max_tokens: 1024,
+      system,
       messages: [{ role: "user", content: prompt }],
     }),
   });

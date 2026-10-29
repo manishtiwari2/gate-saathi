@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { ok, fail } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 import { generateRoomKey } from "@/lib/utils";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -36,6 +37,9 @@ export async function POST(req: Request) {
   const user = await getCurrentUser();
   if (!user) return fail(401, "UNAUTHORIZED", "Not signed in");
 
+  const limited = rateLimit("room-create", user.id, 10, 60 * 60_000);
+  if (limited) return limited;
+
   let body: unknown;
   try {
     body = await req.json();
@@ -46,12 +50,12 @@ export async function POST(req: Request) {
   if (!parsed.success) return fail(400, "BAD_REQUEST", "Room name is required");
 
   // Generate a unique room key.
-  let roomKey = generateRoomKey();
-  for (let i = 0; i < 5; i++) {
-    const exists = await db.room.findUnique({ where: { roomKey } });
-    if (!exists) break;
-    roomKey = generateRoomKey();
+  let roomKey: string | null = null;
+  for (let i = 0; i < 5 && !roomKey; i++) {
+    const candidate = generateRoomKey();
+    if (!(await db.room.findUnique({ where: { roomKey: candidate } }))) roomKey = candidate;
   }
+  if (!roomKey) return fail(503, "KEY_EXHAUSTED", "Could not allocate a room key. Please try again.");
 
   const room = await db.room.create({
     data: {
