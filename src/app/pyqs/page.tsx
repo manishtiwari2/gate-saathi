@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { db } from "@/lib/db";
 import { BRANCHES } from "@/lib/branches";
 import { Kicker } from "@/components/ui";
@@ -32,6 +33,17 @@ export default async function PyqsPage() {
           actually appeared in the exam.
         </p>
       </div>
+
+      <Link
+        href="/papers"
+        className="mt-8 block rounded-[var(--radius-card)] border border-[var(--accent)] bg-[var(--accent-subtle)] p-5 hover:bg-[var(--background-alt)]"
+      >
+        <p className="font-semibold">Computer Science: the official GATE papers, 2007–2026 →</p>
+        <p className="mt-1 text-sm text-[var(--muted)]">
+          Solve the real question papers as published, check answers against the official key, or take a
+          timed 3-hour mock with GATE marking.
+        </p>
+      </Link>
 
       <section className="mt-12">
         <h2 className="font-display text-3xl">Choose Your Branch</h2>

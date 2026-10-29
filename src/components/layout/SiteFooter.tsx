@@ -2,6 +2,7 @@ import Link from "next/link";
 
 const PLATFORM = [
   { href: "/pyqs", label: "PYQ Library" },
+  { href: "/papers", label: "Official CS Papers" },
   { href: "/predicted-papers", label: "Mock Papers" },
   { href: "/daily", label: "Daily PYQ" },
   { href: "/rooms", label: "Study Rooms" },

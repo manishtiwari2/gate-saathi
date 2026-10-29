@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { gradeAnswer, parseNatRange } from "./grading";
+import { gradeAnswer, parseNatRange, scorePaper } from "./grading";
 
 const options = ["2", "4", "8", "16"];
 
@@ -55,5 +55,35 @@ describe("parseNatRange", () => {
     expect(parseNatRange("-2 to -1")).toEqual([-2, -1]);
     expect(parseNatRange("")).toBeNull();
     expect(parseNatRange("about 3")).toBeNull();
+  });
+});
+
+describe("NAT keys with several accepted ranges", () => {
+  it("accepts any of the ranges", () => {
+    const q = { questionType: "NAT", options: [], correctAnswer: "13.3 to 13.3 OR 13.5 to 13.5" };
+    expect(gradeAnswer(q, "13.3")).toBe(true);
+    expect(gradeAnswer(q, "13.5")).toBe(true);
+    expect(gradeAnswer(q, "13.4")).toBe(false);
+  });
+});
+
+describe("scorePaper (GATE marking)", () => {
+  const qs = [
+    { section: "GA", number: 1, type: "MCQ", key: "B", marks: 1 },
+    { section: "CS", number: 30, type: "MCQ", key: "C", marks: 2 },
+    { section: "CS", number: 31, type: "NAT", key: "3 to 4", marks: 2 },
+    { section: "CS", number: 32, type: "MSQ", key: "A;C", marks: 2 },
+    { section: "CS", number: 3, type: "MCQ", key: "MTA", marks: 1 },
+    { section: "CS", number: 33, type: "MCQ", key: "A", marks: 2 },
+  ];
+
+  it("applies negative marking only to wrong MCQs and gives marks-to-all to everyone", () => {
+    const r = scorePaper(qs, { "GA-1": "B", "CS-30": "A", "CS-31": "9", "CS-32": "C;A" });
+    // +1 (GA-1) − 2/3 (CS-30) + 0 (wrong NAT) + 2 (MSQ) + 1 (MTA, unanswered) + 0 (unanswered)
+    expect(r.score).toBe(3.33);
+    expect(r.maxScore).toBe(10);
+    expect([r.correct, r.wrong, r.unanswered]).toEqual([3, 2, 1]);
+    expect(r.results.find((x) => x.id === "CS-30")?.awarded).toBeCloseTo(-2 / 3);
+    expect(r.results.find((x) => x.id === "CS-31")?.awarded).toBe(-0);
   });
 });

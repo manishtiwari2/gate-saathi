@@ -29,7 +29,8 @@ docker compose up -d  # local Postgres (required for dev, tests and e2e)
 npm run db:migrate    # prisma migrate dev
 npm run db:seed       # seed from data/ (tsx scripts/seed.ts); keeps attempt history
 npm run db:reset      # prisma migrate reset --force, then re-seed
-npm run keys:import   # official answer keys from data/pyq/official-keys/*.csv
+npm run keys:import   # official answer keys from data/pyq/official-keys/*.csv (old PYQ bank)
+python scripts/official-papers/build.py "<folder of official GATE CS PDFs>"  # rebuild /papers PDFs + printed keys
 ```
 
 Before claiming a change works, run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build`. Only claim what you actually ran.
@@ -43,6 +44,7 @@ Before claiming a change works, run `npm run typecheck`, `npm run lint`, `npm te
 - **Tailwind v4 is pinned** to `tailwindcss@4.3.3` and `@tailwindcss/postcss@4.3.3`. A version skew between the core and the oxide scanner throws `Missing field 'negated' on ScannerOptions.sources`. Keep both pinned to the same version.
 - **Design tokens live in `src/styles/globals.css`** as CSS variables on `:root` with a `.dark` override. Do not hardcode colors in components; use `var(--...)`. Core tokens: `--background #faf8f5`, `--foreground #1a1a1a`, `--accent #a3640b` (WCAG AA with white text), plus `--accent-foreground` for text on an accent fill (dark text in dark mode). Never put `text-white` on `--accent`. Fonts: Inter (body) + Playfair Display (display headings), via `next/font`.
 - **Realtime is HTTP polling, not websockets** — this matches the reference. Room chat polls every 4s, members every 5s (30s heartbeat), library presence every 3s while the tab is visible. These are sized for free Vercel/Upstash quotas; don't tighten them casually.
+- **Official papers (`/papers`) are the primary CS practice.** PDFs in `public/papers/cs/` (key pages stripped), keys in `data/papers/official/keys/*.csv`. A paper is gradeable only if its key file passes the seed's checks (65 Q, 100 marks); never send a key to the browser before the student answers. Keys must come from the organising institute, never a coaching institute.
 - **Answer keys and library PDFs are owner-collected** via browser-console scripts (`scripts/collect-*.console.js`), because they require the owner's own authenticated session on the live site. They are not run automatically. The answer-key collector is currently blocked by an upstream 500 on the reference — see [STATUS.md](docs/STATUS.md).
 
 ## Repository map

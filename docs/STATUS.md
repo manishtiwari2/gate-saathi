@@ -13,6 +13,7 @@ The reconstruction is **functionally complete** and runs end to end on real coll
 - All reference routes reconstructed (24 pages) plus auth sub-routes.
 - Real seeded data: 20 branches, 213 subjects, 559 questions, 80 papers, 120 cutoffs.
 - 5 real library PDFs collected and served on `/library/content`.
+- Official GATE CS papers 2007–2026 on `/papers` (32 papers); 9 with official answer keys support practice checking and a timed 3-hour mock with GATE marking.
 - Auth (Google + dev login), study rooms with chat/timer/presence (polling), virtual library world, rank predictor, cutoffs, dashboard, leaderboard, storage.
 - Premium entitlement gating (`User.plan` / `isPremium`).
 - CI and deploy GitHub Actions workflows.

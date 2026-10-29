@@ -11,6 +11,9 @@ const db = vi.hoisted(() => ({
   question: { findUnique: vi.fn() },
   questionAttempt: { create: vi.fn() },
   doubtQuery: { create: vi.fn(), count: vi.fn(), delete: vi.fn(), update: vi.fn() },
+  officialQuestion: { findUnique: vi.fn() },
+  officialPaper: { findUnique: vi.fn() },
+  paperAttempt: { create: vi.fn() },
 }));
 const session = vi.hoisted(() => ({ user: null as CurrentUser | null }));
 const ai = vi.hoisted(() => ({ answerDoubt: vi.fn() }));
@@ -24,6 +27,8 @@ import { GET as getLibraryDoc } from "@/app/api/library/document/[id]/route";
 import { POST as postAttempt } from "@/app/api/pyq/attempts/route";
 import { POST as postDoubt } from "@/app/api/ai/doubt/route";
 import { GET as getPresence, POST as postPresence } from "@/app/api/library/multiplayer/route";
+import { POST as checkPaperAnswer } from "@/app/api/papers/[id]/check/route";
+import { POST as submitPaper } from "@/app/api/papers/[id]/submit/route";
 import { resetRateLimits, rateLimit } from "@/lib/rate-limit";
 
 function user(over: Partial<CurrentUser> = {}): CurrentUser {
@@ -189,5 +194,55 @@ describe("rateLimit with the shared store", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     expect(await rateLimit("t2", "who", 1, 60_000)).toBeNull();
     expect((await rateLimit("t2", "who", 1, 60_000))?.status).toBe(429);
+  });
+});
+
+describe("official papers", () => {
+  const key = [
+    { section: "GA", number: 1, type: "MCQ", key: "D", marks: 1 },
+    { section: "CS", number: 2, type: "MCQ", key: "B", marks: 1 },
+    { section: "CS", number: 3, type: "MCQ", key: "MTA", marks: 1 },
+    { section: "CS", number: 27, type: "NAT", key: "197.9 to 198.1", marks: 2 },
+  ];
+
+  it("checks one answer and only then reveals the key", async () => {
+    db.officialQuestion.findUnique.mockResolvedValue(key[3]);
+    const res = await checkPaperAnswer(json({ section: "CS", number: 27, answer: "198" }), params("cs-2016-1"));
+    expect((await res.json()).data).toMatchObject({ isCorrect: true, key: "197.9 to 198.1", marksToAll: false });
+  });
+
+  it("returns 404 for a question without an official key", async () => {
+    db.officialQuestion.findUnique.mockResolvedValue(null);
+    const res = await checkPaperAnswer(json({ section: "CS", number: 5, answer: "A" }), params("cs-2025-1"));
+    expect(res.status).toBe(404);
+  });
+
+  it("refuses to score a paper without an official key", async () => {
+    db.officialPaper.findUnique.mockResolvedValue({ id: "cs-2025-1", keyStatus: "none", questions: [] });
+    const res = await submitPaper(json({ mode: "mock", answers: {} }), params("cs-2025-1"));
+    expect(res.status).toBe(409);
+  });
+
+  it("scores with GATE marking and saves signed-in attempts", async () => {
+    session.user = user();
+    db.officialPaper.findUnique.mockResolvedValue({ id: "cs-2016-1", keyStatus: "official", questions: key });
+    db.paperAttempt.create.mockResolvedValue({});
+    const res = await submitPaper(
+      json({ mode: "mock", answers: { "GA-1": "D", "CS-2": "A", "CS-27": "198" }, durationSec: 600 }),
+      params("cs-2016-1"),
+    );
+    const { data } = await res.json();
+    // +1 − 1/3 + 1 (marks to all) + 2
+    expect(data.score).toBe(3.67);
+    expect(data.keys["CS-3"]).toBe("Marks to all");
+    expect(data.saved).toBe(true);
+    expect(db.paperAttempt.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ userId: "u1", paperId: "cs-2016-1", mode: "mock", correct: 3, wrong: 1 }) }),
+    );
+  });
+
+  it("rejects malformed answer ids", async () => {
+    const res = await submitPaper(json({ mode: "mock", answers: { "../x": "A" } }), params("cs-2016-1"));
+    expect(res.status).toBe(400);
   });
 });
