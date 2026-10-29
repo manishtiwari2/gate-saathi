@@ -27,7 +27,7 @@ const TOOLS = [
 const FAQS = [
   { q: "Is GATE Saathi free?", a: "Yes. The PYQ library, study rooms, predictor and cutoffs are free to use. Premium adds unlimited AI doubts, the global study chat and the topic heatmap." },
   { q: "How do study rooms work?", a: "Create a private room and you get a short room key. Share it with friends; they join from the Rooms page. Each room has a focus timer, chat, member list and shared files." },
-  { q: "Which GATE branches are covered?", a: "All 20 major GATE branches have PYQs and mock papers. Question coverage varies by branch." },
+  { q: "Which GATE branches are covered?", a: "20 GATE branches have PYQs and mock-paper outlines, and Data Science & AI is listed with its questions still to come. Question coverage varies by branch." },
   { q: "Are the mock papers real predictions of the GATE paper?", a: "No. They are practice simulations modelled on historical question patterns, not predictions of the actual paper." },
   { q: "Does it work on Android?", a: "Yes. The site is responsive and works in any modern mobile browser." },
 ];

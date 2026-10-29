@@ -16,6 +16,7 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:seed": "tsx scripts/seed.ts",
+    "keys:import": "tsx scripts/import-answer-keys.ts",
     "db:reset": "prisma migrate reset --force"
   },
   "prisma": {

@@ -1,6 +1,6 @@
 import type { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
-import { ok, parsePagination } from "@/lib/api";
+import { ok, fail, parsePagination } from "@/lib/api";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -11,24 +11,35 @@ export async function GET(req: Request) {
   const subject = sp.get("subject");
   const topic = sp.get("topic");
   const year = sp.get("year");
-  const sortBy = sp.get("sortBy") === "year" ? "year" : "questionNumber";
   const sortDir = sp.get("sortDir") === "asc" ? "asc" : "desc";
 
   const where: Prisma.QuestionWhereInput = {};
   if (branch) where.branchCode = branch.toLowerCase();
   if (subject) where.subjectName = subject;
   if (topic) where.topicName = topic;
-  if (year) where.year = Number(year);
+  if (year) {
+    if (!/^\d{4}$/.test(year)) return fail(400, "BAD_REQUEST", "year must be a 4-digit year");
+    where.year = Number(year);
+  }
 
-  const [totalCount, rows] = await Promise.all([
+  const [totalCount, found] = await Promise.all([
     db.question.count({ where }),
     db.question.findMany({
       where,
-      orderBy: { [sortBy]: sortDir },
+      // Paper order: by year (sortDir), then session and question number.
+      orderBy: [{ year: sortDir }, { session: "asc" }, { questionNumber: "asc" }],
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),
   ]);
+  // questionNumber is stored as text, so the DB sorts "10" before "9"; fix
+  // that within the page (a subject's questions fit in one page).
+  const rows = [...found].sort(
+    (a, b) =>
+      (sortDir === "asc" ? 1 : -1) * ((a.year ?? 0) - (b.year ?? 0)) ||
+      (a.session ?? "").localeCompare(b.session ?? "") ||
+      (Number(a.questionNumber) || 0) - (Number(b.questionNumber) || 0),
+  );
 
   return ok({
     data: rows.map((q) => ({

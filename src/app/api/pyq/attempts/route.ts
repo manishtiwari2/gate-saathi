@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { ok, fail } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
+import { gradeAnswer } from "@/lib/grading";
 
 const schema = z.object({
   questionId: z.string().min(1),
@@ -29,15 +30,17 @@ export async function POST(req: Request) {
   const q = await db.question.findUnique({ where: { id: parsed.data.questionId } });
   if (!q) return fail(404, "NOT_FOUND", "Question not found");
 
-  // Without a verified key we cannot grade reliably; report that explicitly
-  // instead of guessing.
-  if (!q.correctAnswer) {
-    return ok({ success: true, graded: false, reason: "answer_unverified" });
+  // Without a usable verified key we cannot grade reliably; report that
+  // explicitly instead of guessing. Ungraded attempts are not stored, since
+  // they would count as wrong in accuracy stats.
+  const isCorrect = q.correctAnswer
+    ? gradeAnswer({ questionType: q.questionType, options: JSON.parse(q.options) as string[], correctAnswer: q.correctAnswer }, parsed.data.selectedAnswer)
+    : null;
+  if (isCorrect === null) {
+    return ok({ success: true, data: { graded: false, reason: "answer_unverified" } });
   }
 
-  const isCorrect = parsed.data.selectedAnswer.trim() === q.correctAnswer.trim();
-
-  // Persist the attempt for signed-in users (powers heatmap/progress later).
+  // Persist the attempt for signed-in users (powers heatmap/progress).
   const user = await getCurrentUser();
   if (user) {
     await db.questionAttempt.create({
@@ -50,5 +53,5 @@ export async function POST(req: Request) {
     });
   }
 
-  return ok({ success: true, data: { success: true, graded: true, isCorrect } });
+  return ok({ success: true, data: { graded: true, isCorrect } });
 }

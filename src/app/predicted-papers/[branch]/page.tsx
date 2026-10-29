@@ -51,9 +51,10 @@ export default async function BranchPapersPage({
         <Kicker>{b.code.toUpperCase()} · Trend-based mock papers</Kicker>
         <h1 className="mt-2 font-display text-4xl">GATE {b.displayName} Mock Papers</h1>
         <p className="mt-3 max-w-2xl text-[var(--muted)]">
-          Modelled on historical patterns. Preview the structure here; sign in to practice the full
-          paper.
+          Modelled on historical patterns. Preview each paper&apos;s structure here; attempting a full
+          paper isn&apos;t available yet.
         </p>
+        {b.note && <p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">{b.note}</p>}
       </header>
 
       {papers.length === 0 ? (
@@ -113,12 +114,15 @@ export default async function BranchPapersPage({
                   </div>
                 )}
 
-                <div className="mt-5">
+                {/* The full question set for these papers was not collected, so
+                    there is nothing to run yet. Say so, and point to real PYQs. */}
+                <div className="mt-5 flex flex-wrap items-center gap-3">
+                  <p className="text-xs text-[var(--muted)]">The full paper isn&apos;t available to attempt yet.</p>
                   <Link
-                    href="/login"
+                    href={`/pyqs/${b.code}`}
                     className="inline-flex rounded-lg border border-[var(--border)] px-4 py-2 text-sm hover:border-[var(--accent)]"
                   >
-                    Sign in to practice the full paper
+                    Practice {b.code.toUpperCase()} previous-year questions
                   </Link>
                 </div>
               </Card>

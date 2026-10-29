@@ -7,6 +7,8 @@ import { BRANCHES } from "@/lib/branches";
 interface Result {
   branch: string;
   marks: number;
+  category: Category;
+  qualifyingCutoff: number;
   basedOnYear: number;
   estimatedRank: number;
   rankLow: number;
@@ -15,9 +17,18 @@ interface Result {
   qualifies: boolean;
 }
 
+type Category = "general" | "obc-ews" | "sc-st-pwd";
+
+const CATEGORY_LABELS: Record<Category, string> = {
+  general: "General",
+  "obc-ews": "OBC-NCL / EWS",
+  "sc-st-pwd": "SC / ST / PwD",
+};
+
 export function PredictorForm() {
   const [marks, setMarks] = useState("");
   const [branch, setBranch] = useState("cs");
+  const [category, setCategory] = useState<Category>("general");
   const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -33,7 +44,7 @@ export function PredictorForm() {
     }
     setLoading(true);
     try {
-      const r = await fetch(`/api/predictor?branch=${branch}&marks=${m}`);
+      const r = await fetch(`/api/predictor?branch=${branch}&marks=${m}&category=${category}`);
       const j = await r.json();
       if (!r.ok) {
         setError(j?.error?.message ?? "Could not estimate rank.");
@@ -85,6 +96,23 @@ export function PredictorForm() {
               ))}
             </select>
           </div>
+          <div>
+            <label htmlFor="category" className="mb-1 block text-sm font-medium">
+              Category
+            </label>
+            <select
+              id="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value as Category)}
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm"
+            >
+              {(Object.keys(CATEGORY_LABELS) as Category[]).map((c) => (
+                <option key={c} value={c}>
+                  {CATEGORY_LABELS[c]}
+                </option>
+              ))}
+            </select>
+          </div>
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Estimating…" : "Estimate my rank"}
           </Button>
@@ -105,13 +133,20 @@ export function PredictorForm() {
             </p>
             <p className="mt-4 text-sm">
               {result.qualifies ? (
-                <span className="text-[var(--success)]">Likely above the qualifying cutoff.</span>
+                <span className="text-[var(--success)]">
+                  Likely above the {CATEGORY_LABELS[result.category]} qualifying cutoff ({result.qualifyingCutoff} in{" "}
+                  {result.basedOnYear}).
+                </span>
               ) : (
-                <span className="text-[var(--error)]">Below the typical qualifying cutoff.</span>
+                <span className="text-[var(--error)]">
+                  Below the {CATEGORY_LABELS[result.category]} qualifying cutoff ({result.qualifyingCutoff} in{" "}
+                  {result.basedOnYear}).
+                </span>
               )}
             </p>
             <p className="mt-6 text-xs text-[var(--muted)]">
-              Estimate based on {result.branch} statistics from GATE {result.basedOnYear}. The real
+              GATE ranks are all-India and shared across categories; your category only changes the
+              qualifying cutoff. Estimate based on {result.branch} statistics from GATE {result.basedOnYear}. The real
               score-to-rank mapping is published only after results; treat this as a guide, not a
               guarantee.
             </p>

@@ -22,6 +22,17 @@ export function DoubtsClient() {
   const [remaining, setRemaining] = useState<number | null>(null);
   const [isPremium, setIsPremium] = useState(false);
 
+  // Prefill from a PYQ's "Ask the AI tutor" link (?q=&branch=&subject=).
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const q = sp.get("q");
+    const b = sp.get("branch");
+    if (q) setQuestion(q.slice(0, 4000));
+    if (b && BRANCHES.some((x) => x.code === b)) setBranch(b);
+    const s = sp.get("subject");
+    if (s) setSubject(s.slice(0, 120));
+  }, []);
+
   useEffect(() => {
     fetch("/api/ai/doubt/free")
       .then((r) => r.json())
