@@ -38,6 +38,7 @@ model User {
   attempts       QuestionAttempt[]
   paperAttempts  PaperAttempt[]
   doubts         DoubtQuery[]
+  payments       Payment[]
 }
 
 model DoubtQuery {
@@ -52,6 +53,24 @@ model DoubtQuery {
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
+}
+
+// Razorpay payments for the one-time Premium pass. Amounts are in paise.
+// Restrict (not Cascade): a payment record must never vanish with its user.
+model Payment {
+  id          String    @id @default(cuid())
+  userId      String
+  provider    String    @default("razorpay")
+  orderId     String    @unique
+  paymentId   String?   @unique // set once Razorpay reports the payment
+  amountPaise Int
+  currency    String    @default("INR")
+  status      String    @default("created") // created | paid | failed
+  createdAt   DateTime  @default(now())
+  paidAt      DateTime?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
 }
 
 // ---- PYQ bank ----
