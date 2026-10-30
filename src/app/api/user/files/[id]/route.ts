@@ -1,8 +1,7 @@
-import { readFile, unlink } from "node:fs/promises";
 import { db } from "@/lib/db";
 import { fail, ok } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
-import { resolveStoragePath } from "@/lib/storage";
+import { removeStoredFile, serveStoredFile } from "@/lib/serve-file";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -15,32 +14,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   // through /api/library/document/[id].
   if (file.userId !== user.id) return fail(403, "FORBIDDEN", "Not your file");
 
-  try {
-    const bytes = await readFile(resolveStoragePath(file.storagePath));
-    // Never render arbitrary user content inline on the app origin. Only a
-    // small allowlist may be shown inline; everything else downloads.
-    const SAFE_INLINE = new Set([
-      "application/pdf",
-      "image/png",
-      "image/jpeg",
-      "image/gif",
-      "image/webp",
-      "text/plain",
-    ]);
-    const inline = SAFE_INLINE.has(file.mimeType);
-    const type = inline ? file.mimeType : "application/octet-stream";
-    const disp = inline ? "inline" : "attachment";
-    return new Response(new Uint8Array(bytes), {
-      headers: {
-        "content-type": type,
-        "content-disposition": `${disp}; filename*=UTF-8''${encodeURIComponent(file.originalFilename)}`,
-        "x-content-type-options": "nosniff",
-        "content-security-policy": "sandbox; default-src 'none'",
-      },
-    });
-  } catch {
-    return fail(410, "GONE", "File is no longer available");
-  }
+  return serveStoredFile(file);
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -53,6 +27,6 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   if (file.userId !== user.id) return fail(403, "FORBIDDEN", "Not your file");
 
   await db.userFile.delete({ where: { id } });
-  await unlink(resolveStoragePath(file.storagePath)).catch(() => {});
+  await removeStoredFile(file.storagePath);
   return ok({ deleted: true });
 }

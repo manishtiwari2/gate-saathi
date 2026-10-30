@@ -17,6 +17,7 @@ export function StorageClient() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadsEnabled, setUploadsEnabled] = useState(true);
+  const [uploadMode, setUploadMode] = useState<string>("disk");
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const load = useCallback(async () => {
@@ -25,6 +26,7 @@ export function StorageClient() {
       const d = await r.json();
       setFiles(d.files ?? []);
       setUploadsEnabled(d.uploadsEnabled !== false);
+      setUploadMode(d.uploadMode ?? "disk");
     }
     setLoading(false);
   }, []);
@@ -38,17 +40,51 @@ export function StorageClient() {
     if (!file) return;
     setUploading(true);
     setError(null);
-    const fd = new FormData();
-    fd.append("file", file);
-    const r = await fetch("/api/user/files", { method: "POST", body: fd });
-    if (!r.ok) {
-      const j = await r.json().catch(() => null);
-      setError(j?.error?.message ?? "Upload failed.");
-    } else {
-      await load();
+    try {
+      const failed = uploadMode === "supabase" ? await uploadDirect(file) : await uploadForm(file);
+      if (failed) setError(failed);
+      else await load();
+    } catch {
+      setError("Upload failed. Check your connection and try again.");
     }
     setUploading(false);
     if (inputRef.current) inputRef.current.value = "";
+  }
+
+  const message = async (r: Response, fallback: string) =>
+    ((await r.json().catch(() => null)) as { error?: { message?: string } } | null)?.error?.message ?? fallback;
+
+  /** Local disk: send the file to the app. Returns an error message or null. */
+  async function uploadForm(file: File) {
+    const fd = new FormData();
+    fd.append("file", file);
+    const r = await fetch("/api/user/files", { method: "POST", body: fd });
+    return r.ok ? null : message(r, "Upload failed.");
+  }
+
+  /** Supabase Storage: get a signed URL, PUT the file there, then record it. */
+  async function uploadDirect(file: File) {
+    const signed = await fetch("/api/user/files/upload-url", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name: file.name, size: file.size }),
+    });
+    if (!signed.ok) return message(signed, "Upload failed.");
+    const { id, uploadUrl } = (await signed.json()) as { id: string; uploadUrl: string };
+
+    const put = await fetch(uploadUrl, {
+      method: "PUT",
+      headers: { "content-type": file.type || "application/octet-stream" },
+      body: file,
+    });
+    if (!put.ok) return "Upload failed. Please try again.";
+
+    const done = await fetch("/api/user/files/complete", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ id, originalFilename: file.name }),
+    });
+    return done.ok ? null : message(done, "Upload failed.");
   }
 
   async function remove(id: string) {

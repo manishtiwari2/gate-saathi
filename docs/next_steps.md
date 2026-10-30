@@ -11,11 +11,12 @@ Running backlog for GATE Saathi. Grouped by priority. GitHub issues track the di
 
 ## Deployment / config
 
-- [x] Postgres everywhere (Docker locally, Neon in production); `0_init` baseline migration.
-- [ ] Add Google OAuth (`GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`) for real sign-in; disable `ENABLE_DEV_LOGIN` in prod.
+- [x] Postgres everywhere (Docker locally, Supabase in production); `0_init` baseline migration; RLS on every table.
+- [x] Supabase Auth (Google, GitHub) replaces NextAuth.
+- [ ] Enable the Google and GitHub providers in the Supabase dashboard.
 - [ ] Add `ANTHROPIC_API_KEY` to enable the AI doubt engine (otherwise coming-soon).
-- [x] Pick a host: Vercel + Neon + Upstash (free). Steps in [DEPLOY.md](DEPLOY.md).
-- [ ] Object storage (Vercel Blob or Cloudflare R2) so user uploads can be turned on in production.
+- [x] Pick a host: Netlify + Supabase + Upstash (free), Render fallback. Steps in [DEPLOY.md](DEPLOY.md).
+- [x] Object storage for uploads: Supabase Storage with signed URLs.
 
 ## Features
 

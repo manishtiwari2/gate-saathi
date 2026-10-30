@@ -1,128 +1,115 @@
-# Deploying GATE Saathi (free: Vercel + Neon + Upstash)
-
-GATE Saathi runs on free tiers: the app on **Vercel Hobby**, the database on
-**Neon** (Postgres), and shared live state (rate limits, library presence) on
-**Upstash Redis**. The only cost is a custom domain if you want one.
-
-> **Vercel Hobby is for non-commercial use.** That's fine while GATE Saathi is
-> free. Before charging for Premium, move to Vercel Pro or another host.
-
-Free-tier limits change; check each provider's pricing page.
-
-## What runs where
+# Deploying GATE Saathi (free: Netlify + Supabase + Upstash)
 
 | Piece | Service | Notes |
 |---|---|---|
-| Next.js app | Vercel (region `sin1`, Singapore — set in `vercel.json`) | Deploys automatically from GitHub. |
-| Database | Neon Postgres, **AWS Singapore** region | Keep it next to the app. Scales to zero when idle. |
-| Rate limits + library presence | Upstash Redis | Optional but recommended on Vercel; without it each server instance keeps its own counters. |
-| Library PDFs | Bundled with the app from `storage/library/` | Served by `/api/library/document/[id]`. |
-| User uploads | Off on Vercel (shows "coming soon") | Serverless functions have no persistent disk. Needs object storage later. |
+| Next.js app | **Netlify** (free) — fallback: **Render** (free) | `netlify.toml` / `render.yaml` in the repo. |
+| Database | **Supabase** Postgres | Prisma, unchanged. Tables have row-level security on (see below). |
+| Sign-in | **Supabase Auth**: Google and GitHub | The app keeps its own `User` table, matched by verified email. |
+| User uploads | **Supabase Storage**, private bucket | Browser uploads straight to Storage with a signed URL; downloads redirect to a 60-second signed URL. |
+| Rate limits + library presence | **Upstash Redis** | Required in production: serverless instances don't share memory. |
+| Library PDFs, past papers | Shipped with the app | `storage/library/`, `public/papers/cs/`. |
 
-## One-time setup
+The only cost is a custom domain. Free-tier rules change; check each provider's
+pricing page (Netlify's free plan is credit-based: deploys, bandwidth and
+function time all use credits, and the site pauses when they run out).
 
-### 1. Neon (database)
+## Secrets: what goes where
 
-1. Create a free account at neon.tech and a project in **AWS Asia Pacific (Singapore)**.
-2. From the project's **Connect** dialog copy two connection strings:
-   - the **pooled** one (host contains `-pooler`) → `DATABASE_URL`
-   - the **direct** one (no `-pooler`) → `DIRECT_URL`
+| Variable | Secret? | Used by |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | No: built into the browser bundle by design | Sign-in |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Yes. Server only. Never prefix with `NEXT_PUBLIC_`.** | Storage (signed URLs) |
+| `DATABASE_URL`, `DIRECT_URL` | **Yes** | Prisma |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | **Yes** | Rate limits, presence |
+| `ANTHROPIC_API_KEY` | **Yes** (optional) | AI tutor |
 
-   Both need `?sslmode=require`.
+Never set `ENABLE_DEV_LOGIN` in production (it is ignored there anyway).
 
-### 2. Upstash (shared state)
+## 1. Supabase
 
-1. Create a free account at upstash.com and a **Redis** database in a Singapore
-   (`ap-southeast-1`) region.
-2. From its **REST API** section copy `UPSTASH_REDIS_REST_URL` and
-   `UPSTASH_REDIS_REST_TOKEN`.
+1. Create a project at supabase.com. Pick the region closest to where the app's
+   functions run (see step 4), e.g. **Mumbai (ap-south-1)** or **Singapore**.
+2. **Database URLs** (Connect → ORMs → Prisma):
+   - `DATABASE_URL`: **transaction pooler**, port 6543, ending
+     `?pgbouncer=true&connection_limit=1`
+   - `DIRECT_URL`: **session pooler**, port 5432
+3. **Lock down the Data API.** Every table gets row-level security from the
+   migrations, which already blocks the public API. As a second layer, in
+   Project Settings → Data API, remove `public` from *Exposed schemas* (the app
+   never uses the Data API).
+4. **Storage:** Storage → New bucket → name `user-files`, **Private**, file size
+   limit **20 MB**.
+5. **Auth providers** (Authentication → Sign In / Providers):
+   - **Google:** create an OAuth client in Google Cloud Console → Credentials
+     (*Web application*). Authorised redirect URI:
+     `https://<project-ref>.supabase.co/auth/v1/callback`. Paste the client ID
+     and secret into Supabase.
+   - **GitHub:** GitHub → Settings → Developer settings → OAuth Apps → New.
+     Callback URL: the same `https://<project-ref>.supabase.co/auth/v1/callback`.
+     Paste the client ID and secret into Supabase.
+6. **Auth URLs** (Authentication → URL Configuration):
+   - Site URL: `https://yourdomain.com` (or the `*.netlify.app` URL at first)
+   - Redirect URLs: `https://yourdomain.com/auth/callback`,
+     `https://*.netlify.app/auth/callback`, `http://localhost:3000/auth/callback`
+7. Copy the URL, anon (publishable) key and service-role (secret) key from
+   Project Settings → API.
 
-### 3. Create the tables and load the data (from your machine)
+## 2. Upstash
 
-Run once, with the Neon strings pointing at production:
+Create a free Redis database (same region family as the app) and copy
+`UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` from its REST API section.
+
+## 3. Create the tables and load the data (from your machine)
 
 ```bash
-DATABASE_URL="<neon pooled url>" DIRECT_URL="<neon direct url>" npx prisma migrate deploy
+DATABASE_URL="<transaction pooler url>" DIRECT_URL="<session pooler url>" npx prisma migrate deploy
 ```
 
 ```bash
-DATABASE_URL="<neon pooled url>" DIRECT_URL="<neon direct url>" npm run db:seed
+DATABASE_URL="<transaction pooler url>" DIRECT_URL="<session pooler url>" npm run db:seed
 ```
 
-Re-run the seed whenever `data/` changes (for example after importing answer
-keys). It keeps users' attempt history.
+Re-run the seed whenever `data/` changes. It keeps users' attempt history.
 
-### 4. Vercel (app)
+## 4. Netlify (app)
 
-1. Sign in at vercel.com with GitHub and **Import** the `gate-saathi` repository.
-   Framework is detected as Next.js; leave build settings as they are
-   (`package.json` has a `vercel-build` script that runs
-   `prisma migrate deploy` before `next build`).
-2. Add these **Environment Variables** (Production):
+1. Sign in at netlify.com with GitHub → **Add new site → Import an existing
+   project** → pick `gate-saathi`. Netlify reads `netlify.toml`
+   (`npm run build:deploy`, which runs `prisma migrate deploy` then `next build`)
+   and adds its Next.js runtime automatically.
+2. Site configuration → **Environment variables**: add everything in the table
+   above. Scope the database variables to the **Production** context only, or a
+   deploy preview of a pull request with a migration would migrate production.
+3. Site configuration → **Functions → Region**: if your plan lets you change
+   it, pick the region nearest your Supabase project. If not, create the
+   Supabase project in the functions' region instead; a database far from the
+   functions makes every page slower.
+4. Deploy. Every push to `main` deploys to production.
 
-   | Variable | Value |
-   |---|---|
-   | `DATABASE_URL` | Neon pooled URL |
-   | `DIRECT_URL` | Neon direct URL |
-   | `NEXTAUTH_SECRET` | output of `openssl rand -base64 32` |
-   | `NEXTAUTH_URL` | `https://<your-domain>` (or the `*.vercel.app` URL at first) |
-   | `UPSTASH_REDIS_REST_URL` | from Upstash |
-   | `UPSTASH_REDIS_REST_TOKEN` | from Upstash |
-   | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | for sign-in (step 6) |
-   | `ANTHROPIC_API_KEY` | optional; the AI tutor shows "coming soon" without it |
+### Custom domain
 
-   Do **not** set `ENABLE_DEV_LOGIN`. Dev login is disabled in production builds anyway.
+Buy the domain (Cloudflare Registrar charges cost price for `.com`), add it in
+Netlify → Domain management, create the DNS records Netlify shows, then update
+the Supabase Site URL and redirect URLs to the new domain.
 
-3. Deploy. Every merge to `main` deploys to production; pull requests get
-   preview deployments.
+## Fallback: Render
 
-> **Preview deployments and the database.** `vercel-build` runs
-> `prisma migrate deploy`. If preview deployments share the production
-> `DATABASE_URL`, a pull request with a new migration would apply it to
-> production. Either set the database variables for **Production only**, or
-> install Neon's Vercel integration, which gives each preview its own database
-> branch.
-
-### 5. Custom domain
-
-1. Buy the domain (for example at Cloudflare Registrar, which charges cost
-   price for `.com`).
-2. In Vercel → Project → **Settings → Domains**, add `yourdomain.com` and
-   `www.yourdomain.com`. Vercel shows the DNS records to create.
-3. Create those records at your DNS provider. If you use Cloudflare DNS, set
-   the records to **DNS only** (grey cloud) so Vercel can issue the HTTPS
-   certificate.
-4. Update `NEXTAUTH_URL` to `https://yourdomain.com` and redeploy.
-
-### 6. Google sign-in
-
-Without it, nobody can sign in on production (dev login is off there).
-
-1. Google Cloud Console → APIs & Services → **Credentials** → Create
-   **OAuth client ID** → *Web application*.
-2. Authorised redirect URI: `https://yourdomain.com/api/auth/callback/google`
-   (and the `*.vercel.app` one if you use it).
-3. Put the client ID and secret in Vercel and redeploy.
+If Netlify doesn't work out, create a **Blueprint** on render.com from this
+repository; it reads `render.yaml` (free web service, Singapore). Add the same
+environment variables in the dashboard. Render's free services **sleep after
+about 15 minutes idle** (the next visit takes ~30-60 s to wake) and have no
+persistent disk, which is fine because uploads live in Supabase Storage.
 
 ## Free-tier budget (approximate)
 
-Polling intervals are set to fit free quotas:
-
-- **Room chat** polls every 4 s, **member list** every 5 s, room heartbeat every 30 s.
-- **Library world** syncs every 3 s, and only while the tab is visible:
-  about 1 Redis command per tick when standing still and 3 when moving.
-  Upstash's free 500K commands/month is a few hundred hours of
-  library-world use per month.
-- **Neon** scales to zero when nobody is using the site; the first request
-  after a quiet spell takes a moment longer.
-
-If the site grows past these, the first upgrades are Upstash pay-as-you-go
-and Neon's paid plan; the code doesn't change.
+Polling intervals are sized for free quotas: room chat every 4 s, member list
+every 5 s (30 s heartbeat), library world every 3 s and only while the tab is
+visible. Each poll is a function call on Netlify, so busy study rooms are the
+first thing to watch on the usage page.
 
 ## Checking a deployment
 
-- `/` shows the GATE 2027 countdown.
-- `/pyqs/cs` lists questions (seed ran).
-- `/cutoffs` shows the table (it refreshes hourly from the database).
-- Sign in with Google, open `/rooms`, create a room, send a chat message.
-- `/storage` shows "File uploads are coming soon".
+- `/` shows the GATE 2027 countdown; `/pyqs/cs` lists questions (seed ran).
+- `/login` shows Google and GitHub; signing in returns to the page you came from.
+- `/rooms`: create a room, send a chat message.
+- `/storage`: upload a PDF, open it, delete it.

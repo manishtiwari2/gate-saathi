@@ -2,7 +2,7 @@
  * Shared key-value store for state that must be seen by every server
  * instance: rate-limit counters and live library presence.
  *
- * On serverless hosts (Vercel) each request may run on a different instance,
+ * On serverless hosts (Netlify) each request may run on a different instance,
  * so process memory is not shared. When UPSTASH_REDIS_REST_URL/TOKEN are set,
  * commands go to Upstash Redis over its REST API. Without them (local dev, a
  * single long-running server) callers fall back to their in-memory path.

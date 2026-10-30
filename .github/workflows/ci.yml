@@ -32,8 +32,6 @@ jobs:
     env:
       DATABASE_URL: "postgresql://gate:gate@localhost:5432/gate_saathi"
       DIRECT_URL: "postgresql://gate:gate@localhost:5432/gate_saathi"
-      NEXTAUTH_SECRET: "ci-placeholder-secret-not-used-in-prod"
-      NEXTAUTH_URL: "http://localhost:3000"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

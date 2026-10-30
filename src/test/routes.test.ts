@@ -7,7 +7,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import type { CurrentUser } from "@/lib/session";
 
 const db = vi.hoisted(() => ({
-  userFile: { findUnique: vi.fn() },
+  userFile: { findUnique: vi.fn(), create: vi.fn() },
+  user: { upsert: vi.fn() },
   question: { findUnique: vi.fn() },
   questionAttempt: { create: vi.fn() },
   doubtQuery: { create: vi.fn(), count: vi.fn(), delete: vi.fn(), update: vi.fn() },
@@ -29,7 +30,10 @@ import { POST as postDoubt } from "@/app/api/ai/doubt/route";
 import { GET as getPresence, POST as postPresence } from "@/app/api/library/multiplayer/route";
 import { POST as checkPaperAnswer } from "@/app/api/papers/[id]/check/route";
 import { POST as submitPaper } from "@/app/api/papers/[id]/submit/route";
+import { POST as getUploadUrl } from "@/app/api/user/files/upload-url/route";
+import { POST as completeUpload } from "@/app/api/user/files/complete/route";
 import { resetRateLimits, rateLimit } from "@/lib/rate-limit";
+import { syncUserFromAuth, verifiedEmail } from "@/lib/auth";
 
 function user(over: Partial<CurrentUser> = {}): CurrentUser {
   return {
@@ -244,5 +248,113 @@ describe("official papers", () => {
   it("rejects malformed answer ids", async () => {
     const res = await submitPaper(json({ mode: "mock", answers: { "../x": "A" } }), params("cs-2016-1"));
     expect(res.status).toBe(400);
+  });
+});
+
+describe("Supabase Storage uploads", () => {
+  const env = { ...process.env };
+  let calls: Array<{ url: string; method: string; body: unknown }>;
+  let listing: unknown[];
+
+  beforeEach(() => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://proj.supabase.co";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key";
+    delete process.env.ENABLE_UPLOADS;
+    calls = [];
+    listing = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string, init: RequestInit) => {
+        calls.push({ url, method: init.method ?? "GET", body: init.body ? JSON.parse(String(init.body)) : undefined });
+        if (url.includes("/object/upload/sign/")) return Response.json({ url: "/object/upload/sign/user-files/p?token=t" });
+        if (url.includes("/object/list/")) return Response.json(listing);
+        if (url.includes("/object/sign/")) return Response.json({ signedURL: "/object/sign/user-files/p?token=s" });
+        return Response.json({});
+      }),
+    );
+  });
+  afterEach(() => {
+    process.env = { ...env };
+    vi.unstubAllGlobals();
+  });
+
+  it("signs an upload into the caller's own folder and keeps the key server-side", async () => {
+    session.user = user();
+    const res = await getUploadUrl(json({ name: "notes/../x.pdf", size: 1000 }));
+    const body = await res.json();
+    const { id, uploadUrl } = body;
+    expect(res.status).toBe(200);
+    expect(Object.keys(body).sort()).toEqual(["id", "uploadUrl"]);
+    expect(uploadUrl).toBe("https://proj.supabase.co/storage/v1/object/upload/sign/user-files/p?token=t");
+    expect(calls[0].url).toBe(`https://proj.supabase.co/storage/v1/object/upload/sign/user-files/u1/${id}/notes_.._x.pdf`);
+  });
+
+  it("refuses oversized uploads and anonymous callers", async () => {
+    expect((await getUploadUrl(json({ name: "a.pdf", size: 1000 }))).status).toBe(401);
+    session.user = user();
+    expect((await getUploadUrl(json({ name: "a.pdf", size: 21 * 1024 * 1024 }))).status).toBe(413);
+  });
+
+  it("records size and type as Storage reports them", async () => {
+    session.user = user();
+    const id = "6f1c1f9e-2a7b-4c1d-9a51-1f2e3d4c5b6a";
+    listing = [{ name: "a.pdf", id: "obj", metadata: { size: 1234, mimetype: "application/pdf" } }];
+    db.userFile.findUnique.mockResolvedValue(null);
+    db.userFile.create.mockImplementation(async ({ data }) => data);
+    const res = await completeUpload(json({ id, originalFilename: "a.pdf" }));
+    expect(res.status).toBe(201);
+    expect(calls[0].body).toMatchObject({ prefix: `u1/${id}` });
+    expect(db.userFile.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ userId: "u1", fileSize: 1234, storagePath: `supabase:u1/${id}/a.pdf` }),
+    });
+  });
+
+  it("deletes an object that arrived larger than the limit", async () => {
+    session.user = user();
+    listing = [{ name: "big.pdf", id: "obj", metadata: { size: 30 * 1024 * 1024, mimetype: "application/pdf" } }];
+    const res = await completeUpload(json({ id: "6f1c1f9e-2a7b-4c1d-9a51-1f2e3d4c5b6a", originalFilename: "big.pdf" }));
+    expect(res.status).toBe(413);
+    expect(calls.some((c) => c.method === "DELETE")).toBe(true);
+    expect(db.userFile.create).not.toHaveBeenCalled();
+  });
+
+  it("serves an owner's file by redirecting to a short-lived signed URL", async () => {
+    session.user = user();
+    db.userFile.findUnique.mockResolvedValue({
+      id: "f1", userId: "u1", storagePath: "supabase:u1/x/a.zip", mimeType: "application/zip", originalFilename: "a.zip",
+    });
+    const res = await getUserFile(new Request("http://test.local"), params("f1"));
+    expect(res.status).toBe(302);
+    // Not on the inline allowlist, so Storage must send it as a download.
+    expect(res.headers.get("location")).toBe(
+      "https://proj.supabase.co/storage/v1/object/sign/user-files/p?token=s&download=a.zip",
+    );
+    expect(calls[0].body).toEqual({ expiresIn: 60 });
+  });
+});
+
+describe("Supabase Auth identity", () => {
+  const authUser = (over: Record<string, unknown> = {}) =>
+    ({
+      id: "a1",
+      email: "Student@Example.com",
+      email_confirmed_at: "2026-10-01T00:00:00Z",
+      user_metadata: { full_name: "A Student", avatar_url: "https://avatars.githubusercontent.com/u/1" },
+      ...over,
+    }) as never;
+
+  it("only trusts verified emails", () => {
+    expect(verifiedEmail(authUser())).toBe("student@example.com");
+    expect(verifiedEmail(authUser({ email_confirmed_at: undefined }))).toBeNull();
+  });
+
+  it("creates the User row on first sign-in without overwriting an edited name", async () => {
+    db.user.upsert.mockResolvedValue({ id: "u1" });
+    await syncUserFromAuth(authUser());
+    expect(db.user.upsert).toHaveBeenCalledWith({
+      where: { email: "student@example.com" },
+      update: { avatarUrl: "https://avatars.githubusercontent.com/u/1" },
+      create: { email: "student@example.com", displayName: "A Student", avatarUrl: "https://avatars.githubusercontent.com/u/1" },
+    });
   });
 });

@@ -1,14 +1,19 @@
 // GATE Saathi data model. Postgres everywhere: Docker locally
-// (docker-compose.yml), Neon in production (docs/DEPLOY.md).
+// (docker-compose.yml), Supabase in production (docs/DEPLOY.md).
+// Every table has row-level security on with no policies, so Supabase's
+// public Data API can't read it; Prisma connects as the owner and isn't
+// affected. Enable RLS in the migration of any new table.
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // "native" for this machine and Render; rhel for Netlify's Lambda functions.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL") // pooled connection in production (Neon)
-  directUrl = env("DIRECT_URL") // unpooled: used by migrations and the seed
+  url       = env("DATABASE_URL") // Supabase transaction pooler in production
+  directUrl = env("DIRECT_URL") // session pooler / direct: migrations and the seed
 }
 
 // ---- Auth / users ----
@@ -25,8 +30,6 @@ model User {
   plan           String   @default("free") // free | premium
   createdAt      DateTime @default(now())
 
-  accounts       Account[]
-  sessions       Session[]
   studySessions  StudySession[]
   roomsOwned     Room[]         @relation("RoomOwner")
   memberships    RoomMember[]
@@ -49,41 +52,6 @@ model DoubtQuery {
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
-}
-
-// NextAuth adapter tables
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
 }
 
 // ---- PYQ bank ----

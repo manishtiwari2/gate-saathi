@@ -1,20 +1,15 @@
-import type { NextAuthOptions } from "next-auth";
-import type { Adapter, AdapterUser } from "next-auth/adapters";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import GoogleProvider from "next-auth/providers/google";
-import CredentialsProvider from "next-auth/providers/credentials";
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
+import type { User as AuthUser } from "@supabase/supabase-js";
 import { db } from "@/lib/db";
 
-const providers: NextAuthOptions["providers"] = [];
-
-// Real Google sign-in when credentials are configured.
-if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-  providers.push(
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
-  );
+/**
+ * Sign-in is Supabase Auth (Google and GitHub, enabled in the Supabase
+ * dashboard). Supabase only proves who the person is; the app's own User
+ * row, matched by verified email, holds everything else (plan, goals...).
+ */
+export function isSupabaseAuthEnabled(): boolean {
+  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 }
 
 // Local dev login (no external service). It accepts any email with no password,
@@ -22,81 +17,59 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 export const isDevLoginEnabled =
   process.env.ENABLE_DEV_LOGIN === "true" && process.env.NODE_ENV !== "production";
 
-if (isDevLoginEnabled) {
-  providers.push(
-    CredentialsProvider({
-      id: "dev",
-      name: "Dev login",
-      credentials: {
-        email: { label: "Email", type: "email", placeholder: "you@example.com" },
-        name: { label: "Display name", type: "text", placeholder: "Your name" },
+export const DEV_LOGIN_COOKIE = "gs-dev-login";
+
+/**
+ * Supabase client bound to this request's cookies. Server components can't
+ * set cookies, so refreshed tokens are written by the middleware instead.
+ */
+export async function createSupabaseServerClient() {
+  const store = await cookies();
+  return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+    cookies: {
+      getAll: () => store.getAll(),
+      setAll(list) {
+        try {
+          for (const { name, value, options } of list) store.set(name, value, options);
+        } catch {
+          // Called from a server component; the middleware refreshes the session.
+        }
       },
-      async authorize(credentials) {
-        const email = credentials?.email?.trim().toLowerCase();
-        if (!email) return null;
-        const displayName = credentials?.name?.trim() || email.split("@")[0];
-        const user = await db.user.upsert({
-          where: { email },
-          update: {},
-          create: { email, displayName },
-        });
-        return { id: user.id, email: user.email, name: user.displayName, image: user.avatarUrl };
-      },
-    }),
-  );
+    },
+  });
 }
 
-// The stock adapter writes name/image/emailVerified, which our User model does
-// not have. Map OAuth profiles onto displayName/avatarUrl instead, and let the
-// adapter create the user so it can link the Google Account in the same step.
-const baseAdapter = PrismaAdapter(db);
-const adapter: Adapter = {
-  ...baseAdapter,
-  async createUser(data: Omit<AdapterUser, "id">) {
-    const user = await db.user.create({
-      data: {
-        email: data.email,
-        displayName: data.name ?? data.email.split("@")[0],
-        avatarUrl: data.image ?? undefined,
-      },
-    });
-    return { id: user.id, email: user.email, emailVerified: null, name: user.displayName, image: user.avatarUrl };
-  },
-};
+/** The signed-in person's verified email, or null. */
+export async function getSignedInEmail(): Promise<string | null> {
+  if (isDevLoginEnabled) {
+    const dev = (await cookies()).get(DEV_LOGIN_COOKIE)?.value;
+    if (dev) return dev;
+  }
+  if (!isSupabaseAuthEnabled()) return null;
 
-export const authOptions: NextAuthOptions = {
-  adapter,
-  providers,
-  session: { strategy: "jwt" },
-  pages: { signIn: "/login" },
-  callbacks: {
-    async signIn({ user, account }) {
-      // Refresh the avatar for returning Google users. Never create the user
-      // here (the adapter does that) and never overwrite a name they edited.
-      if (account?.provider === "google" && user.email && user.image) {
-        await db.user.updateMany({ where: { email: user.email }, data: { avatarUrl: user.image } });
-      }
-      return true;
-    },
-    async jwt({ token }) {
-      if (token.email) {
-        const dbUser = await db.user.findUnique({ where: { email: token.email } });
-        if (dbUser) {
-          token.uid = dbUser.id;
-          token.plan = dbUser.plan;
-        }
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = (token.uid as string) ?? "";
-        session.user.plan = (token.plan as string) ?? "free";
-      }
-      return session;
-    },
-  },
-  secret: process.env.NEXTAUTH_SECRET,
-};
+  // getUser() checks the token with Supabase, unlike getSession().
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase.auth.getUser();
+  return verifiedEmail(data.user);
+}
 
-export const isGoogleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+/** Only a verified email may identify a User row. */
+export function verifiedEmail(user: AuthUser | null | undefined): string | null {
+  if (!user?.email || !user.email_confirmed_at) return null;
+  return user.email.trim().toLowerCase();
+}
+
+/** Create the app's User row on first sign-in; refresh the avatar after that. */
+export async function syncUserFromAuth(user: AuthUser) {
+  const email = verifiedEmail(user);
+  if (!email) return null;
+  const meta = user.user_metadata ?? {};
+  const name = [meta.full_name, meta.name, meta.user_name].find((v) => typeof v === "string" && v.trim());
+  const avatar = typeof meta.avatar_url === "string" ? meta.avatar_url : undefined;
+  return db.user.upsert({
+    where: { email },
+    // Never overwrite a display name the user edited.
+    update: avatar ? { avatarUrl: avatar } : {},
+    create: { email, displayName: (name as string | undefined)?.trim() ?? email.split("@")[0], avatarUrl: avatar },
+  });
+}
