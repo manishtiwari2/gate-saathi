@@ -15,10 +15,10 @@ function setEnv(vars: Record<string, string | undefined>) {
 }
 
 describe("uploadBackend", () => {
-  const noSupabase = { NEXT_PUBLIC_SUPABASE_URL: undefined, SUPABASE_SERVICE_ROLE_KEY: undefined };
+  const noSupabase = { NEXT_PUBLIC_SUPABASE_URL: undefined, SUPABASE_SECRET_KEY: undefined };
 
   it("uses Supabase Storage when configured", () => {
-    setEnv({ NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "k", ENABLE_UPLOADS: undefined });
+    setEnv({ NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co", SUPABASE_SECRET_KEY: "k", ENABLE_UPLOADS: undefined });
     expect(uploadBackend()).toBe("supabase");
   });
 
@@ -32,7 +32,7 @@ describe("uploadBackend", () => {
   it("can be forced either way", () => {
     setEnv({ ...noSupabase, NODE_ENV: "production", ENABLE_UPLOADS: "true" });
     expect(uploadBackend()).toBe("disk");
-    setEnv({ NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "k", ENABLE_UPLOADS: "false" });
+    setEnv({ NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co", SUPABASE_SECRET_KEY: "k", ENABLE_UPLOADS: "false" });
     expect(uploadBackend()).toBe("none");
   });
 });

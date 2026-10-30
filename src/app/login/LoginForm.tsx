@@ -35,7 +35,7 @@ export function LoginForm({
     setError(null);
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     );
     const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(callbackUrl)}`;
     const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo } });

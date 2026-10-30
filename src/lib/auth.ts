@@ -9,7 +9,7 @@ import { db } from "@/lib/db";
  * row, matched by verified email, holds everything else (plan, goals...).
  */
 export function isSupabaseAuthEnabled(): boolean {
-  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
 }
 
 // Local dev login (no external service). It accepts any email with no password,
@@ -25,7 +25,7 @@ export const DEV_LOGIN_COOKIE = "gs-dev-login";
  */
 export async function createSupabaseServerClient() {
   const store = await cookies();
-  return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+  return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!, {
     cookies: {
       getAll: () => store.getAll(),
       setAll(list) {
