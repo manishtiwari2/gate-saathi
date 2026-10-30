@@ -242,7 +242,7 @@ see [data/papers/official/README.md](data/papers/official/README.md).
 
 ## Deployment
 
-Free hosting on **Netlify + Supabase + Upstash** (Render as the fallback host),
+Free hosting on **Netlify + Supabase + Upstash** (Render as the backup host, all in US East),
 with an optional custom domain. Step-by-step instructions are in
 **[docs/DEPLOY.md](docs/DEPLOY.md)**.
 
@@ -268,7 +268,7 @@ Current state is tracked in [STATUS.md](docs/STATUS.md); the actionable backlog 
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical design, data model, API surface |
 | [FEATURES.md](docs/FEATURES.md) | Feature matrix with status and reference parity |
 | [STATUS.md](docs/STATUS.md) | Current-state snapshot |
-| [DEPLOY.md](docs/DEPLOY.md) | Free deployment on Netlify + Supabase + Upstash (Render fallback), custom domain |
+| [DEPLOY.md](docs/DEPLOY.md) | Free deployment on Netlify + Supabase + Upstash (Render backup), custom domain, credit budget |
 | [CONTRIBUTING.md](docs/CONTRIBUTING.md) | Dev setup, git flow, conventions |
 | [CLAUDE.md](CLAUDE.md) | Conventions and gotchas for AI/code agents |
 | [SECURITY.md](docs/SECURITY.md) | Vulnerability reporting and security invariants |

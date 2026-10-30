@@ -15,7 +15,7 @@ Running backlog for GATE Saathi. Grouped by priority. GitHub issues track the di
 - [x] Supabase Auth (Google, GitHub) replaces NextAuth.
 - [ ] Enable the Google and GitHub providers in the Supabase dashboard.
 - [ ] Add `ANTHROPIC_API_KEY` to enable the AI doubt engine (otherwise coming-soon).
-- [x] Pick a host: Netlify + Supabase + Upstash (free), Render fallback. Steps in [DEPLOY.md](DEPLOY.md).
+- [x] Pick a host: Netlify + Supabase + Upstash (free), Render as backup, all in US East. Steps in [DEPLOY.md](DEPLOY.md).
 - [x] Object storage for uploads: Supabase Storage with signed URLs.
 
 ## Features

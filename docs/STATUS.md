@@ -33,7 +33,7 @@ The reconstruction is **functionally complete** and runs end to end on real coll
 
 - Create the Supabase project (database, private `user-files` bucket, Google + GitHub providers) and run `prisma migrate deploy` + `npm run db:seed` against it (see DEPLOY.md).
 - Add `ANTHROPIC_API_KEY` to turn the AI doubt engine on (coming-soon until then).
-- Deploy on Netlify + Supabase + Upstash following [DEPLOY.md](DEPLOY.md) (Render is the fallback).
+- Deploy on Netlify + Supabase + Upstash following [DEPLOY.md](DEPLOY.md) (Render as the backup host; Supabase in US East, Ohio).
 
 ## Deferred / gaps (documented)
 

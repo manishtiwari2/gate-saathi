@@ -4,7 +4,7 @@ Technical design of GATE Saathi. For what the product does see [SPEC.md](SPEC.md
 
 ## Overview
 
-A single Next.js 15 application (App Router) that serves both the UI and the REST API, backed by Prisma over Postgres (Docker locally, Supabase in production), deployed on Netlify (Render as fallback). Sign-in is Supabase Auth; uploads live in Supabase Storage. This mirrors the reference, which is also a single Next.js app. There is no separate backend service.
+A single Next.js 15 application (App Router) that serves both the UI and the REST API, backed by Prisma over Postgres (Docker locally, Supabase in production), deployed on Netlify (Render as a backup host; everything in US East). Sign-in is Supabase Auth; uploads live in Supabase Storage. This mirrors the reference, which is also a single Next.js app. There is no separate backend service.
 
 ```
 Browser ──▶ Next.js (App Router)
