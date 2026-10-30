@@ -89,11 +89,11 @@ No method of electronic storage or transmission is 100% secure. While we strive 
 
 GATE Saathi integrates with the following third-party services, each with its own privacy practices:
 
-Supabase — authentication and database hosting
-Google — OAuth sign-in provider
+Supabase — authentication, database and file storage
+Google and GitHub — sign-in providers
 Groq — AI inference for the doubt engine
 Razorpay — payment processing
-Vercel — hosting and analytics
+Netlify — hosting
 
 We encourage you to review the privacy policies of these services.
 

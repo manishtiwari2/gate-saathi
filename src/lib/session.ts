@@ -1,5 +1,5 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { cache } from "react";
+import { getSignedInEmail } from "@/lib/auth";
 import { db } from "@/lib/db";
 
 export interface CurrentUser {
@@ -14,12 +14,16 @@ export interface CurrentUser {
   isPremium: boolean;
 }
 
-/** Returns the signed-in user (from the DB), or null. */
-export async function getCurrentUser(): Promise<CurrentUser | null> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) return null;
+/**
+ * Returns the signed-in user (from the DB), or null. Cached per request, so
+ * the auth check runs once however many times it is called.
+ */
+export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
+  const email = await getSignedInEmail();
+  if (!email) return null;
 
-  const user = await db.user.findUnique({ where: { email: session.user.email } });
+  // The row is created at sign-in (/auth/callback, dev login).
+  const user = await db.user.findUnique({ where: { email } });
   if (!user) return null;
 
   return {
@@ -33,7 +37,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     plan: user.plan,
     isPremium: user.plan === "premium",
   };
-}
+});
 
 /** Throws a 401-style sentinel when there is no user; use in route handlers. */
 export async function requireUser(): Promise<CurrentUser> {

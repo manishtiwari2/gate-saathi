@@ -4,7 +4,7 @@ Technical design of GATE Saathi. For what the product does see [SPEC.md](SPEC.md
 
 ## Overview
 
-A single Next.js 15 application (App Router) that serves both the UI and the REST API, backed by Prisma over Postgres (Docker locally, Neon in production), deployed on Vercel. This mirrors the reference, which is also a single Next.js app. There is no separate backend service.
+A single Next.js 15 application (App Router) that serves both the UI and the REST API, backed by Prisma over Postgres (Docker locally, Supabase in production), deployed on Netlify (Render as fallback). Sign-in is Supabase Auth; uploads live in Supabase Storage. This mirrors the reference, which is also a single Next.js app. There is no separate backend service.
 
 ```
 Browser ──▶ Next.js (App Router)
@@ -20,8 +20,8 @@ Browser ──▶ Next.js (App Router)
 |---|---|---|
 | Framework | Next.js 15 (App Router), React 19, TypeScript | matches the reference |
 | Styling | Tailwind CSS v4 (pinned 4.3.3) | tokens in `src/styles/globals.css` |
-| ORM / DB | Prisma 6 over Postgres | Docker locally, Neon in production; `DIRECT_URL` for migrations |
-| Auth | Auth.js (NextAuth 4), Google + dev credentials | JWT sessions, Prisma adapter |
+| ORM / DB | Prisma 6 over Postgres | Docker locally, Supabase in production; `DIRECT_URL` for migrations; RLS on every table |
+| Auth | Supabase Auth (Google, GitHub) + local dev login | Cookie sessions via `@supabase/ssr`; app `User` row matched by verified email |
 | AI | Anthropic Messages API (`claude-haiku-5-5`) | coming-soon when key absent |
 | Realtime | HTTP polling | matches the reference; no websockets |
 | Validation | zod | on API route input |
@@ -66,7 +66,8 @@ ai/doubt  ai/doubt/free
 ## Key modules (`src/lib`)
 
 - `db.ts` — Prisma client singleton.
-- `auth.ts` / `session.ts` — NextAuth config; `getCurrentUser()`, `requireUser()`, derived `isPremium`.
+- `auth.ts` / `session.ts` — Supabase Auth client, dev login, User sync; `getCurrentUser()`, `requireUser()`, derived `isPremium`.
+- `storage.ts` / `supabase-storage.ts` / `serve-file.ts` — where uploads go, Supabase Storage signed URLs, serving a stored file after the access check.
 - `anthropic.ts` — `answerDoubt()` returns `{ available: false }` when no key, else calls the Messages API; `isAiConfigured()`.
 - `predictor.ts` — `estimateRank()` exponential-decay model over historical stats (unit-tested).
 - `stats.ts` — `dailyTotals()`, `computeStreak()` (unit-tested).
@@ -80,7 +81,7 @@ HTTP polling, chosen to match the reference (which polls rather than using webso
 - Rooms chat polls roughly every 4s.
 - Library presence polls roughly every 3s (paused while the tab is hidden), stored in Upstash Redis when configured.
 
-Library presence and rate-limit counters live in **Upstash Redis** when it is configured (`src/lib/kv.ts`), so they work across Vercel's serverless instances; locally they fall back to process memory. Room presence uses the `RoomMember.lastSeenAt` column, and the AI daily limit is enforced in the database.
+Library presence and rate-limit counters live in **Upstash Redis** when it is configured (`src/lib/kv.ts`), so they work across Netlify's serverless instances; locally they fall back to process memory. Room presence uses the `RoomMember.lastSeenAt` column, and the AI daily limit is enforced in the database.
 
 ## Security
 
@@ -99,4 +100,4 @@ The app runs fully without either; see [STATUS.md](STATUS.md) for their current 
 
 ## Deployment notes
 
-Production runs free on Vercel + Neon + Upstash; see [DEPLOY.md](DEPLOY.md). `vercel-build` applies migrations before `next build`. User uploads are off on Vercel (no persistent disk) until object storage is added.
+Production runs free on Netlify + Supabase + Upstash; see [DEPLOY.md](DEPLOY.md). `build:deploy` applies migrations before `next build`. User uploads go from the browser straight to a private Supabase Storage bucket through signed URLs, because serverless functions can't hold large bodies or a persistent disk.

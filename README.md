@@ -51,8 +51,9 @@ topic heatmap to keep momentum.
 It is a single Next.js 15 application serving both the UI and a typed REST API,
 backed by Prisma and Postgres. Locally it needs only Docker for the database:
 dev login and a graceful "coming soon" state for the AI engine mean no external
-accounts. In production it runs free on Vercel + Neon + Upstash, with Google
-OAuth and the Anthropic API switched on by environment variables.
+accounts. In production it runs free on Netlify + Supabase + Upstash, with Google and
+GitHub sign-in (Supabase Auth) and the Anthropic API switched on by environment
+variables.
 
 **Built on real data.** Every question, paper, cutoff and resource is collected
 from the authorized reference site. Where data could not be collected, the app
@@ -90,8 +91,8 @@ Full feature-by-feature status and reference parity: [FEATURES.md](docs/FEATURES
 |---|---|
 | Framework | Next.js 15 (App Router), React 19, TypeScript 5.7 |
 | Styling | Tailwind CSS v4, design tokens extracted from the reference |
-| Database | Prisma 6 ORM over Postgres (Docker locally, Neon in production) |
-| Auth | Auth.js (NextAuth 4) — Google + dev credentials, JWT sessions |
+| Database | Prisma 6 ORM over Postgres (Docker locally, Supabase in production) |
+| Auth | Supabase Auth (Google, GitHub) + local dev login; app `User` table matched by verified email |
 | AI | Anthropic Messages API (`claude-haiku-5-5`) |
 | Realtime | HTTP polling (matches the reference) |
 | Validation | zod |
@@ -128,26 +129,27 @@ and try the predictor, all without any external keys.
 ## Configuration
 
 All configuration is via environment variables in `.env` locally and in the
-Vercel project settings in production.
+Netlify site settings in production. Only `NEXT_PUBLIC_*` values reach the browser.
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `DATABASE_URL` | yes | Postgres connection string (Neon's pooled URL in production). |
-| `DIRECT_URL` | yes | Unpooled Postgres URL, used by migrations and the seed. Same as `DATABASE_URL` locally. |
-| `NEXTAUTH_SECRET` | prod | Session/JWT signing secret. |
-| `NEXTAUTH_URL` | prod | Canonical app URL. |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | prod | Google sign-in (the only sign-in in production). |
-| `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | recommended on Vercel | Shared store for rate limits and library presence. Without it they use process memory. |
+| `DATABASE_URL` | yes | Postgres connection string (Supabase transaction pooler in production). |
+| `DIRECT_URL` | yes | Session-pooler/direct Postgres URL, used by migrations and the seed. Same as `DATABASE_URL` locally. |
+| `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | prod | Supabase Auth (Google, GitHub sign-in). Public by design. |
+| `SUPABASE_SERVICE_ROLE_KEY` | prod | **Server only.** Signed URLs for user uploads in Supabase Storage. |
+| `SUPABASE_STORAGE_BUCKET` | optional | Private bucket for uploads (default `user-files`). |
+| `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | prod | Shared store for rate limits and library presence. Without it they use process memory. |
 | `ANTHROPIC_API_KEY` | optional | Enables the AI doubt engine; otherwise it shows "coming soon". |
-| `ENABLE_UPLOADS` | optional | Force user uploads on/off. Default: on, except on Vercel. |
+| `ENABLE_UPLOADS` | optional | `false` turns uploads off; `true` forces local disk. Default: Supabase Storage if configured, else disk in development only. |
 | `ENABLE_DEV_LOGIN` | dev only | Local dev login (any email). Always off in production builds. |
 
 See [`.env.example`](.env.example) for example values.
 
 ## Database
 
-Postgres everywhere: Docker locally (`docker-compose.yml`) and Neon in
-production. Migrations live in `prisma/migrations` (baseline `0_init`).
+Postgres everywhere: Docker locally (`docker-compose.yml`) and Supabase in
+production. Every table has row-level security on, so Supabase's public Data API
+can't read it. Migrations live in `prisma/migrations` (baseline `0_init`).
 
 ```bash
 docker compose up -d            # start local Postgres
@@ -240,13 +242,13 @@ see [data/papers/official/README.md](data/papers/official/README.md).
 
 ## Deployment
 
-Free hosting on **Vercel + Neon + Upstash**, with an optional custom domain.
-Step-by-step instructions are in **[docs/DEPLOY.md](docs/DEPLOY.md)**.
+Free hosting on **Netlify + Supabase + Upstash** (Render as the fallback host),
+with an optional custom domain. Step-by-step instructions are in
+**[docs/DEPLOY.md](docs/DEPLOY.md)**.
 
-- Vercel deploys automatically from GitHub; `vercel-build` applies migrations first.
+- Netlify deploys from GitHub (`netlify.toml`); `build:deploy` applies migrations first.
 - Rate limits and library presence use Upstash so they work across serverless instances.
-- User uploads are off on Vercel ("coming soon") because there is no persistent disk; the library PDFs ship with the app.
-- Vercel Hobby is non-commercial: move to Pro or another host before charging for Premium.
+- User uploads go straight from the browser to a private Supabase Storage bucket; the library PDFs ship with the app.
 
 ## Roadmap & status
 
@@ -257,7 +259,6 @@ Current state is tracked in [STATUS.md](docs/STATUS.md); the actionable backlog 
 - Interactive full mock-paper runner.
 - Mistake / bookmark bank from attempt data.
 - Room file-sharing UI, storage quotas.
-- Object storage for user uploads on serverless hosting (uploads are off on Vercel for now).
 
 ## Documentation
 
@@ -267,7 +268,7 @@ Current state is tracked in [STATUS.md](docs/STATUS.md); the actionable backlog 
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical design, data model, API surface |
 | [FEATURES.md](docs/FEATURES.md) | Feature matrix with status and reference parity |
 | [STATUS.md](docs/STATUS.md) | Current-state snapshot |
-| [DEPLOY.md](docs/DEPLOY.md) | Free deployment on Vercel + Neon + Upstash, custom domain |
+| [DEPLOY.md](docs/DEPLOY.md) | Free deployment on Netlify + Supabase + Upstash (Render fallback), custom domain |
 | [CONTRIBUTING.md](docs/CONTRIBUTING.md) | Dev setup, git flow, conventions |
 | [CLAUDE.md](CLAUDE.md) | Conventions and gotchas for AI/code agents |
 | [SECURITY.md](docs/SECURITY.md) | Vulnerability reporting and security invariants |

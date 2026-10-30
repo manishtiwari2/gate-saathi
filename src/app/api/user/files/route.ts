@@ -5,9 +5,8 @@ import { db } from "@/lib/db";
 import { ok, fail } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 import { rateLimit } from "@/lib/rate-limit";
-import { isUploadsEnabled } from "@/lib/storage";
+import { MAX_UPLOAD_BYTES as MAX_BYTES, isUploadsEnabled, safeFileName, uploadBackend } from "@/lib/storage";
 
-const MAX_BYTES = 20 * 1024 * 1024; // 20 MB per file
 const STORAGE_DIR = join(process.cwd(), "storage", "user");
 
 export async function GET() {
@@ -32,6 +31,8 @@ export async function GET() {
     })),
     usage: { usedBytes: used },
     uploadsEnabled: isUploadsEnabled(),
+    // "supabase": the browser uploads to a signed URL (see ./upload-url).
+    uploadMode: uploadBackend(),
   });
 }
 
@@ -39,9 +40,10 @@ export async function POST(req: Request) {
   const user = await getCurrentUser();
   if (!user) return fail(401, "UNAUTHORIZED", "Not signed in");
 
-  if (!isUploadsEnabled()) {
-    return fail(503, "COMING_SOON", "File uploads are coming soon.");
-  }
+  const backend = uploadBackend();
+  if (backend === "none") return fail(503, "COMING_SOON", "File uploads are coming soon.");
+  // With Supabase Storage the bytes go straight from the browser to Storage.
+  if (backend !== "disk") return fail(400, "DIRECT_UPLOAD", "Upload through /api/user/files/upload-url");
 
   const limited = await rateLimit("upload", user.id, 20, 60 * 60_000);
   if (limited) return limited;
@@ -59,8 +61,7 @@ export async function POST(req: Request) {
 
   const bytes = Buffer.from(await file.arrayBuffer());
   const id = randomUUID();
-  // Keep names well under filesystem limits (the uuid prefix adds 37 chars).
-  const safeName = file.name.replace(/[^\w.\-() ]+/g, "_").slice(-120);
+  const safeName = safeFileName(file.name);
   const storagePath = join(STORAGE_DIR, `${id}-${safeName}`);
 
   await mkdir(STORAGE_DIR, { recursive: true });

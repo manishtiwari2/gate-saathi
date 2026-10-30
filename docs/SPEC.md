@@ -61,7 +61,7 @@ GATE Saathi is an authorized reconstruction of `https://www.padhaishuru.com`. Th
 - Per-user file storage with metadata, quotas (intended), and per-file visibility (`private` | `published`) and access tier (`free` | `premium`).
 
 ### Auth
-- Google sign-in (Auth.js / NextAuth, JWT sessions) with a local dev-login fallback so the app runs without Google credentials.
+- Google and GitHub sign-in (Supabase Auth) with a local dev-login fallback so the app runs without a Supabase project.
 
 ## Non-goals (current)
 

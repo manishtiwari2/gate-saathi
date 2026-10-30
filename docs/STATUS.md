@@ -27,14 +27,13 @@ The reconstruction is **functionally complete** and runs end to end on real coll
 
 ## Awaiting a decision
 
-- **Subscription / billing (issue #9).** Entitlement gating exists; the money half (processor, `Subscription` model, `/pricing`, checkout, signed webhook, billing UI) is not built. Needs: pick Razorpay or Stripe, and confirm which features gate behind it. Payment is money-handling, so the approach is confirmed before building.
+- **Subscription / billing (issue #9).** Entitlement gating exists; the money half (Razorpay/UPI checkout, signed webhook with idempotency, billing UI) is not built and is being handled separately.
 
 ## Optional before production
 
-- Create the free Neon database and run `prisma migrate deploy` + `npm run db:seed` against it (see DEPLOY.md).
-- Add `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`; disable dev login in production.
+- Create the Supabase project (database, private `user-files` bucket, Google + GitHub providers) and run `prisma migrate deploy` + `npm run db:seed` against it (see DEPLOY.md).
 - Add `ANTHROPIC_API_KEY` to turn the AI doubt engine on (coming-soon until then).
-- Deploy on Vercel + Neon + Upstash following [DEPLOY.md](DEPLOY.md) (presence and rate limits already use the shared store).
+- Deploy on Netlify + Supabase + Upstash following [DEPLOY.md](DEPLOY.md) (Render is the fallback).
 
 ## Deferred / gaps (documented)
 

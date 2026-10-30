@@ -3,7 +3,7 @@ import { isKvConfigured, kvPipeline } from "@/lib/kv";
 
 /**
  * Fixed-window rate limiter. Counters live in Upstash Redis when it is
- * configured (needed on Vercel, where instances don't share memory) and in
+ * configured (needed on Netlify, where instances don't share memory) and in
  * process memory otherwise (local dev, a single long-running server).
  */
 

@@ -1,0 +1,31 @@
+# Render fallback (free web service), if Netlify doesn't work out.
+# Free services sleep after ~15 minutes idle. Setup: docs/DEPLOY.md.
+services:
+  - type: web
+    name: gate-saathi
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci && npm run build:deploy
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # Secrets: set in the Render dashboard, never here.
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false

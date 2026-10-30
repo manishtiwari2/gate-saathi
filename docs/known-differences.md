@@ -7,7 +7,7 @@ Written for: the project owner. Itemizes where GATE Saathi intentionally or unav
 - **Brand**: renamed PadhaiShuru → **GATE Saathi** throughout (including the rebranded legal text).
 - **Key-gated features show "coming soon", not errors**: the AI doubt engine renders a coming-soon card when `ANTHROPIC_API_KEY` is unset, rather than failing. Per the owner's instruction.
 - **Database**: SQLite by default for zero-setup local runs; Postgres/Supabase-compatible via `DATABASE_URL` (the reference uses Supabase). No schema changes needed to switch.
-- **Auth**: Auth.js (NextAuth) with Google + a local dev-login fallback, instead of Supabase Auth. Real Google sign-in works once credentials are set.
+- **Auth**: Supabase Auth (Google, GitHub), as on the reference, plus a local dev-login fallback. Sign-in works once the providers are enabled in Supabase.
 
 ## Reference defects reproduced (not bugs in this build)
 

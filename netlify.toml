@@ -1,0 +1,9 @@
+# Netlify (free). Netlify detects Next.js and adds its Next.js runtime
+# automatically. Setup and environment variables: docs/DEPLOY.md.
+[build]
+  # Applies pending migrations to the database before building.
+  command = "npm run build:deploy"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"

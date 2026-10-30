@@ -26,4 +26,4 @@ These are enforced in the codebase and must not regress. They are also listed in
 
 ## Handling secrets
 
-Required/optional environment variables are documented in `.env.example`. The app runs locally with none of them (dev login on, AI engine in coming-soon state). For production, set `DATABASE_URL`, Google OAuth credentials, `NEXTAUTH_SECRET`, and `ANTHROPIC_API_KEY`, and disable dev login.
+Required/optional environment variables are documented in `.env.example`. The app runs locally with none of them (dev login on, AI engine in coming-soon state). For production, set the database URLs, the Supabase keys (the service-role key is server-only, never `NEXT_PUBLIC_`), the Upstash credentials and optionally `ANTHROPIC_API_KEY`; dev login is never honoured in production. All tables have row-level security on, so the Supabase anon key cannot read them through the Data API.

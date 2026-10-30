@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { signOut, useSessionUser } from "@/components/Providers";
 import { ThemeToggle } from "./ThemeToggle";
 import { cn, loginHref } from "@/lib/utils";
 
@@ -27,8 +27,7 @@ function isActive(pathname: string, href: string) {
 export function SiteNav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const { data: session, status } = useSession();
-  const user = session?.user;
+  const { user, status } = useSessionUser();
   const close = () => setOpen(false);
 
   return (
@@ -63,10 +62,10 @@ export function SiteNav() {
             (user ? (
               <>
                 <Link href="/profile" className="text-sm text-[var(--foreground)] hover:text-[var(--accent)]">
-                  {user.name ?? "Profile"}
+                  {user.name || "Profile"}
                 </Link>
                 <button
-                  onClick={() => signOut({ callbackUrl: "/" })}
+                  onClick={() => signOut()}
                   className="text-sm text-[var(--muted)] hover:text-[var(--foreground)]"
                 >
                   Sign out
@@ -121,12 +120,12 @@ export function SiteNav() {
               (user ? (
                 <div className="mt-2 flex items-center justify-between border-t border-[var(--border)] pt-3">
                   <Link href="/profile" onClick={close} className="text-sm text-[var(--foreground)]">
-                    {user.name ?? "Profile"}
+                    {user.name || "Profile"}
                   </Link>
                   <button
                     onClick={() => {
                       close();
-                      signOut({ callbackUrl: "/" });
+                      signOut();
                     }}
                     className="text-sm text-[var(--muted)] hover:text-[var(--foreground)]"
                   >
