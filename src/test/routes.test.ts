@@ -258,7 +258,7 @@ describe("Supabase Storage uploads", () => {
 
   beforeEach(() => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://proj.supabase.co";
-    process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key";
+    process.env.SUPABASE_SECRET_KEY = "service-key";
     delete process.env.ENABLE_UPLOADS;
     calls = [];
     listing = [];

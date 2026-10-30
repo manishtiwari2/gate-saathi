@@ -17,8 +17,8 @@ function time all use credits, and the site pauses when they run out).
 
 | Variable | Secret? | Used by |
 |---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | No: built into the browser bundle by design | Sign-in |
-| `SUPABASE_SERVICE_ROLE_KEY` | **Yes. Server only. Never prefix with `NEXT_PUBLIC_`.** | Storage (signed URLs) |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | No: built into the browser bundle by design | Sign-in |
+| `SUPABASE_SECRET_KEY` | **Yes. Server only. Never prefix with `NEXT_PUBLIC_`.** | Storage (signed URLs) |
 | `DATABASE_URL`, `DIRECT_URL` | **Yes** | Prisma |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | **Yes** | Rate limits, presence |
 | `ANTHROPIC_API_KEY` | **Yes** (optional) | AI tutor |
@@ -51,8 +51,9 @@ Never set `ENABLE_DEV_LOGIN` in production (it is ignored there anyway).
    - Site URL: `https://yourdomain.com` (or the `*.netlify.app` URL at first)
    - Redirect URLs: `https://yourdomain.com/auth/callback`,
      `https://*.netlify.app/auth/callback`, `http://localhost:3000/auth/callback`
-7. Copy the URL, anon (publishable) key and service-role (secret) key from
-   Project Settings → API.
+7. From Project Settings → **API Keys**, copy the **publishable key**
+   (`sb_publishable_...`) and a **secret key** (`sb_secret_...`); the Project URL
+   is on the same settings area.
 
 ## 2. Upstash
 

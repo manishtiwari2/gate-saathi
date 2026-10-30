@@ -8,7 +8,7 @@ import { createServerClient } from "@supabase/ssr";
  */
 export async function middleware(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   // Skip the network call for visitors who have never signed in.
   if (!url || !key || !request.cookies.getAll().some((c) => c.name.startsWith("sb-"))) {
     return NextResponse.next();

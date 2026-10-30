@@ -135,8 +135,8 @@ Netlify site settings in production. Only `NEXT_PUBLIC_*` values reach the brows
 |---|---|---|
 | `DATABASE_URL` | yes | Postgres connection string (Supabase transaction pooler in production). |
 | `DIRECT_URL` | yes | Session-pooler/direct Postgres URL, used by migrations and the seed. Same as `DATABASE_URL` locally. |
-| `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | prod | Supabase Auth (Google, GitHub sign-in). Public by design. |
-| `SUPABASE_SERVICE_ROLE_KEY` | prod | **Server only.** Signed URLs for user uploads in Supabase Storage. |
+| `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | prod | Supabase Auth (Google, GitHub sign-in). Public by design. |
+| `SUPABASE_SECRET_KEY` | prod | **Server only.** Signed URLs for user uploads in Supabase Storage. |
 | `SUPABASE_STORAGE_BUCKET` | optional | Private bucket for uploads (default `user-files`). |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | prod | Shared store for rate limits and library presence. Without it they use process memory. |
 | `ANTHROPIC_API_KEY` | optional | Enables the AI doubt engine; otherwise it shows "coming soon". |

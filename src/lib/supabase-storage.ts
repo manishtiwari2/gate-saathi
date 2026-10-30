@@ -4,13 +4,14 @@
  * Serverless functions (Netlify) cap request and response bodies at a few MB,
  * so file bytes never pass through the app: the browser uploads straight to
  * a signed upload URL, and downloads redirect to a short-lived signed URL.
- * The service-role key stays on the server; the bucket must be private.
+ * The secret key (SUPABASE_SECRET_KEY) stays on the server; the bucket must
+ * be private.
  */
 
 const DEFAULT_BUCKET = "user-files";
 
 export function isSupabaseStorageConfigured(): boolean {
-  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SECRET_KEY);
 }
 
 function bucket() {
@@ -25,7 +26,7 @@ function base() {
 const encodePath = (path: string) => path.split("/").map(encodeURIComponent).join("/");
 
 async function call(method: string, path: string, body?: unknown): Promise<Response> {
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  const key = process.env.SUPABASE_SECRET_KEY!;
   const res = await fetch(`${base()}${path}`, {
     method,
     headers: { authorization: `Bearer ${key}`, apikey: key, "content-type": "application/json" },
