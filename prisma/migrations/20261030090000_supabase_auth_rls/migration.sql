@@ -24,4 +24,10 @@ ALTER TABLE "RoomMember" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "RoomMessage" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "RoomFile" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "UserFile" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "_prisma_migrations" ENABLE ROW LEVEL SECURITY;
+-- _prisma_migrations only exists in a real database. Prisma's temporary shadow
+-- database (used by `prisma migrate dev`) does not have it, so guard the statement.
+DO $$ BEGIN
+  IF to_regclass('"_prisma_migrations"') IS NOT NULL THEN
+    ALTER TABLE "_prisma_migrations" ENABLE ROW LEVEL SECURITY;
+  END IF;
+END $$;
