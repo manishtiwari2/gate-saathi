@@ -85,7 +85,9 @@ export function BuyButton({ label, name, email }: { label: string; name: string;
         // The popup reports success here, but the browser can be lied to. Premium is
         // only granted after the server verifies the signature (next part of #9).
         handler: () => setStatus({ kind: "paid" }),
-        modal: { ondismiss: () => setStatus({ kind: "idle" }) },
+        // A failed payment keeps the popup open for a retry; closing it afterwards
+        // must not wipe the failure message.
+        modal: { ondismiss: () => setStatus((s) => (s.kind === "error" ? s : { kind: "idle" })) },
       });
       checkout.on("payment.failed", (r) =>
         setStatus({ kind: "error", message: r.error.description || "The payment failed. Please try again." }),
