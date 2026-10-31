@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Kicker, Card, Badge, ButtonLink } from "@/components/ui";
 import { BuyButton } from "@/components/billing/BuyButton";
 import { getCurrentUser } from "@/lib/session";
+import { loginHref } from "@/lib/utils";
 import { isPaymentsEnabled, PREMIUM_PRICE_PAISE, formatRupees } from "@/lib/payments";
 
 export const metadata: Metadata = {
@@ -53,12 +54,16 @@ export default async function PricingPage() {
     action = <p className="text-sm text-[var(--muted)]">Payments are coming soon.</p>;
   } else if (!user) {
     action = (
-      <ButtonLink href="/login" className="w-full">
+      <ButtonLink href={loginHref("/pricing")} className="w-full">
         Sign in to buy Premium
       </ButtonLink>
     );
   } else {
-    action = <BuyButton label={`Buy Premium for ${formatRupees(PREMIUM_PRICE_PAISE)}`} />;
+    action = <BuyButton
+        label={`Buy Premium for ${formatRupees(PREMIUM_PRICE_PAISE)}`}
+        name={user.displayName}
+        email={user.email}
+      />;
   }
 
   return (

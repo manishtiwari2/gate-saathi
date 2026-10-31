@@ -17,6 +17,7 @@ interface RazorpayOptions {
   name: string;
   description: string;
   theme: { color: string };
+  prefill: { name: string; email: string };
   handler: (response: RazorpayResponse) => void;
   modal: { ondismiss: () => void };
 }
@@ -49,7 +50,7 @@ type Status =
   | { kind: "error"; message: string }
   | { kind: "paid" };
 
-export function BuyButton({ label }: { label: string }) {
+export function BuyButton({ label, name, email }: { label: string; name: string; email: string }) {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
 
   async function buy() {
@@ -79,7 +80,8 @@ export function BuyButton({ label }: { label: string }) {
         order_id: body.orderId,
         name: "GATE Saathi",
         description: "Premium pass (one-time)",
-        theme: { color: accent || "#a3640b" },
+        theme: { color: accent },
+        prefill: { name, email },
         // The popup reports success here, but the browser can be lied to. Premium is
         // only granted after the server verifies the signature (next part of #9).
         handler: () => setStatus({ kind: "paid" }),

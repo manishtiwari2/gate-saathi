@@ -19,11 +19,11 @@ export async function POST() {
   if (!user) return fail(401, "UNAUTHORIZED", "Sign in to buy Premium");
 
   if (!isPaymentsEnabled()) {
-    return fail(503, "PAYMENTS_UNAVAILABLE", "Payments are coming soon");
+    return fail(503, "COMING_SOON", "Payments are coming soon");
   }
   if (user.isPremium) return fail(409, "ALREADY_PREMIUM", "You already have Premium");
 
-  const limited = await rateLimit("billing-checkout", user.id, 5, 60_000);
+  const limited = await rateLimit("billing-checkout", user.id, 10, 60 * 60_000);
   if (limited) return limited;
 
   let order;

@@ -58,7 +58,9 @@ describe("POST /api/billing/checkout", () => {
 
   it("503 when Razorpay keys are not set", async () => {
     vi.stubEnv("RAZORPAY_KEY_ID", "");
-    expect((await checkout()).status).toBe(503);
+    const res = await checkout();
+    expect(res.status).toBe(503);
+    expect((await res.json()).error.code).toBe("COMING_SOON");
     expect(rzp.create).not.toHaveBeenCalled();
   });
 
@@ -104,8 +106,8 @@ describe("POST /api/billing/checkout", () => {
     expect(db.payment.create).not.toHaveBeenCalled();
   });
 
-  it("429 after 5 attempts in a minute", async () => {
-    for (let i = 0; i < 5; i++) expect((await checkout()).status).toBe(200);
+  it("429 after 10 attempts in an hour", async () => {
+    for (let i = 0; i < 10; i++) expect((await checkout()).status).toBe(200);
     expect((await checkout()).status).toBe(429);
   });
 });
