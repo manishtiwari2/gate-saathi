@@ -1,3 +1,5 @@
+import Razorpay from "razorpay";
+
 const DEFAULT_PRICE_PAISE = 4900; // Rs 49
 
 function readPrice(): number {
@@ -18,4 +20,34 @@ export function isPaymentsEnabled(): boolean {
 export function formatRupees(paise: number): string {
   const rupees = paise / 100;
   return `₹${Number.isInteger(rupees) ? rupees : rupees.toFixed(2)}`;
+}
+
+let client: Razorpay | null = null;
+
+/** Razorpay SDK client built from the server-only keys. Throws if they are not set. */
+function getRazorpay(): Razorpay {
+  if (!isPaymentsEnabled()) throw new Error("Razorpay keys are not configured");
+  client ??= new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID!,
+    key_secret: process.env.RAZORPAY_KEY_SECRET!,
+  });
+  return client;
+}
+
+/** Public key id the Checkout popup needs. The secret never leaves the server. */
+export function razorpayKeyId(): string {
+  return process.env.RAZORPAY_KEY_ID ?? "";
+}
+
+/**
+ * Create a Razorpay order for the Premium pass. The amount always comes from
+ * the server-side price, never from the browser.
+ */
+export async function createPremiumOrder(receipt: string, userId: string) {
+  return getRazorpay().orders.create({
+    amount: PREMIUM_PRICE_PAISE,
+    currency: "INR",
+    receipt, // Razorpay allows at most 40 characters
+    notes: { userId, product: "premium-pass" },
+  });
 }
